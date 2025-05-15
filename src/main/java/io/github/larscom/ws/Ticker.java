@@ -14,6 +14,8 @@ import java.util.Optional;
 @JsonDeserialize(as = ImmutableTicker.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface Ticker extends MessageIn {
+    String getMarket();
+
     Optional<BigDecimal> getBestBid();
 
     Optional<BigDecimal> getBestBidSize();

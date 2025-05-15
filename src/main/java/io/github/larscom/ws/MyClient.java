@@ -3,42 +3,46 @@ package io.github.larscom.ws;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.BackpressureStrategy;
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public class MyClient extends WebSocketClient {
     private final ObjectMapper objectMapper;
     private final PublishSubject<MessageIn> messagePublisher;
     private final PublishSubject<BitvavoError> errorPublisher;
-    private final HashMap<MessageInEvent, Class<? extends MessageIn>> eventMap = new HashMap<>(
-        Map.of(MessageInEvent.TICKER, Ticker.class)
-    );
 
-    public MyClient(final URI serverURI, final ObjectMapper objectMapper) {
-        super(serverURI);
+    private final HashMap<MessageInEvent, Class<? extends MessageIn>> eventMap = new HashMap<>() {{
+        put(MessageInEvent.TICKER, Ticker.class);
+        put(MessageInEvent.SUBSCRIBED, Subscription.class);
+        put(MessageInEvent.UNSUBSCRIBED, Subscription.class);
+    }};
+
+    public MyClient(final URI uri, final ObjectMapper objectMapper) throws InterruptedException {
+        super(uri);
         this.objectMapper = objectMapper;
         this.messagePublisher = PublishSubject.create();
         this.errorPublisher = PublishSubject.create();
+
+        connectBlocking();
     }
 
-    public Observable<MessageIn> getMessage() {
-        return Observable.wrap(messagePublisher);
+    public Flowable<MessageIn> stream() {
+        return messagePublisher.toFlowable(BackpressureStrategy.BUFFER);
     }
 
-    public Observable<BitvavoError> getError() {
-        return Observable.wrap(errorPublisher);
+    public Flowable<BitvavoError> error() {
+        return errorPublisher.toFlowable(BackpressureStrategy.LATEST);
     }
 
     public void send(final MessageOut message) throws JsonProcessingException {
-//        send(objectMapper.writeValueAsString(message));
-        send("test");
+        send(objectMapper.writeValueAsString(message));
     }
 
     @Override
@@ -47,30 +51,34 @@ public class MyClient extends WebSocketClient {
 
     @Override
     public void onMessage(final String message) {
-        System.out.println("received: " + message);
-
+        System.out.println("Incoming message: " + message);
         try {
             final JsonNode json = objectMapper.readTree(message);
-            final var maybeEvent = Optional.ofNullable(json.get("event")).map(JsonNode::asText).map(MessageInEvent::deserialize);
-//            final var maybeError = Optional.ofNullable(json.get("error")).map(JsonNode::asText).flatMap(text -> tryDeserialize(text, BitvavoError.class));
-            final var maybeError = Optional.ofNullable(json.get("error")).flatMap(text -> tryDeserialize(message, BitvavoError.class));
 
-            maybeEvent.flatMap(event -> tryDeserialize(message, eventMap.get(event))).ifPresent(messagePublisher::onNext);
+            final var maybeMessage = Optional.ofNullable(json.get("event"))
+                .map(JsonNode::asText)
+                .map(MessageInEvent::deserialize)
+                .flatMap(event -> tryDeserialize(message, eventMap.get(event)));
+
+            maybeMessage.ifPresent(messagePublisher::onNext);
+
+            final var maybeError = Optional.ofNullable(json.get("error"))
+                .flatMap(__ -> tryDeserialize(message, BitvavoError.class));
+
             maybeError.ifPresent(errorPublisher::onNext);
-
         } catch (final JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     @Override
     public void onClose(final int code, final String reason, final boolean remote) {
-
+        System.out.println("Connection closed: " + code + " " + reason);
     }
 
     @Override
     public void onError(final Exception ex) {
+        System.out.println("Error!!!!!!: " + ex.getMessage());
     }
 
     private <T> Optional<T> tryDeserialize(final String json, final Class<T> clazz) {

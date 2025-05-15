@@ -2,24 +2,19 @@ package io.github.larscom.ws;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.List;
 
 @Value.Immutable
 @Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-@JsonDeserialize(as = ImmutableBitvavoError.class)
+@JsonDeserialize(as = ImmutableSubscription.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface BitvavoError {
-    int getErrorCode();
+public interface Subscription extends MessageIn {
 
-    @JsonProperty("error")
-    String getErrorMessage();
+    HashMap<MessageInEvent, List<String>> getSubscriptions();
 
-    Optional<String> getAction();
 }
-
-
