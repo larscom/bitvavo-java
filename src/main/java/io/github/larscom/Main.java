@@ -19,8 +19,12 @@ public class Main {
         objectMapper.registerModule(new Jdk8Module());
 
         final var c = new MyClient(new URI("wss://ws.bitvavo.com/v2"), objectMapper);
-        c.getObservable().subscribe(s -> {
+        c.getMessage().subscribe(s -> {
             System.out.println("Received obs: " + s);
+        });
+
+        c.getError().subscribe(e -> {
+            System.out.println("Error: " + e);
         });
 
         c.connectBlocking();
