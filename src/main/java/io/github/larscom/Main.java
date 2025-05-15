@@ -29,7 +29,7 @@ public class Main {
                 .build()))
             .build();
 
-        c.sendMessage(message);
+        c.send(message);
 
         Thread.sleep(50000);
     }

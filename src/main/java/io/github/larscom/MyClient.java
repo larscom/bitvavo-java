@@ -23,7 +23,7 @@ public class MyClient extends WebSocketClient {
         return Observable.wrap(this.subject);
     }
 
-    public void sendMessage(final MessageOut message) throws JsonProcessingException {
+    public void send(final MessageOut message) throws JsonProcessingException {
         send(objectMapper.writeValueAsString(message));
     }
 
