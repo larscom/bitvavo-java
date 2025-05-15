@@ -16,8 +16,6 @@ public class Main {
         objectMapper.registerModule(new Jdk8Module());
 
         final var client = new MyClient(new URI("wss://ws.bitvavo.com/v2"), objectMapper);
-        client.setConnectionLostTimeout(10);
-
         client.stream().subscribe(messageIn -> {
             switch (messageIn) {
                 case final Ticker ticker -> {
