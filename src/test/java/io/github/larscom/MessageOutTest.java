@@ -3,6 +3,7 @@ package io.github.larscom;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import io.github.larscom.ws.Channel;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

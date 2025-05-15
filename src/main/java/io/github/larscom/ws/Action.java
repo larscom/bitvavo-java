@@ -1,4 +1,4 @@
-package io.github.larscom;
+package io.github.larscom.ws;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

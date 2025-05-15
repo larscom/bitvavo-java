@@ -3,6 +3,10 @@ package io.github.larscom;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import io.github.larscom.ws.Action;
+import io.github.larscom.ws.Channel;
+import io.github.larscom.ws.MessageOut;
+import io.github.larscom.ws.MyClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,6 +35,6 @@ public class Main {
 
         c.send(message);
 
-        Thread.sleep(50000);
+        Thread.currentThread().join();
     }
 }
