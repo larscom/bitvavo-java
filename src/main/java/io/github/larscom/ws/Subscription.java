@@ -2,6 +2,7 @@ package io.github.larscom.ws;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface Subscription extends MessageIn {
 
-    HashMap<MessageInEvent, List<String>> getSubscriptions();
+    @JsonProperty("subscriptions")
+    HashMap<MessageInEvent, List<String>> getActiveSubscriptions();
 
 }

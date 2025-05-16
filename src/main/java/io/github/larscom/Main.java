@@ -3,6 +3,8 @@ package io.github.larscom;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.ws.*;
 
+import java.util.List;
+
 public class Main {
 
     public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
@@ -16,14 +18,12 @@ public class Main {
                     case final Ticker ticker -> {
                         System.out.println("Ticker: " + ticker);
                     }
-                    case final Subscription subscription -> {
-                        System.out.println("Subscribed: " + subscription);
+                    default -> {
                     }
-                    default -> throw new IllegalStateException("Unexpected value: " + message);
                 }
             });
 
-        listener.subscribe();
+        listener.subscribe(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"));
 
         Thread.currentThread().join();
     }
