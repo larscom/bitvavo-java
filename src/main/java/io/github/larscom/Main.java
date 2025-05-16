@@ -10,39 +10,47 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class Main {
-    public static void main(final String[] args) throws URISyntaxException, InterruptedException, JsonProcessingException {
 
+    public static void main(final String[] args) {
         final var objectMapper = new ObjectMapper();
         objectMapper.registerModule(new Jdk8Module());
 
-        final var client = new MyClient(new URI("wss://ws.bitvavo.com/v2"), objectMapper);
-        client.stream().subscribe(messageIn -> {
-            switch (messageIn) {
-                case final Ticker ticker -> {
-                    System.out.println("Ticker: " + ticker);
+        while (true) {
+            try {
+                final var client = new MyClient(new URI("wss://ws.bitvavo.com/v2"), objectMapper);
+                if (client.connectBlocking()) {
+                    client.stream()
+                        .filter(Either::isLeft)
+                        .map(Either::getLeft)
+                        .subscribe(message -> {
+                            switch (message) {
+                                case final Ticker ticker -> {
+                                    System.out.println("Ticker: " + ticker);
+                                }
+                                case final Subscription subscription -> {
+                                    System.out.println("Subscribed: " + subscription);
+                                }
+                                default -> throw new IllegalStateException("Unexpected value: " + message);
+                            }
+                        });
+
+                    final var message = MessageOut.builder()
+                        .action(Action.SUBSCRIBE)
+                        .channels(List.of(Channel.builder()
+                            .name("ticker")
+                            .markets(List.of("ETH-EUR"))
+                            .build()))
+                        .build();
+
+                    client.send(message);
+
+                    client.blockUntilClosed();
+                } else {
+                    Thread.sleep(1000);
                 }
-                case final Subscription subscription -> {
-                    System.out.println("Subscribed: " + subscription);
-                }
-                default -> throw new IllegalStateException("Unexpected value: " + messageIn);
+            } catch (final InterruptedException | URISyntaxException | JsonProcessingException e) {
+                throw new RuntimeException(e);
             }
-        });
-
-        client.error().subscribe(e -> {
-            System.out.println("Error: " + e);
-        });
-
-
-        final var message = MessageOut.builder()
-            .action(Action.SUBSCRIBE)
-            .channels(List.of(Channel.builder()
-                .name("ticker")
-                .markets(List.of("ETH-EUR"))
-                .build()))
-            .build();
-
-        client.send(message);
-
-        Thread.currentThread().join();
+        }
     }
 }

@@ -12,12 +12,13 @@ import org.java_websocket.handshake.ServerHandshake;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 public class MyClient extends WebSocketClient {
     private final ObjectMapper objectMapper;
-    private final PublishSubject<MessageIn> messagePublisher;
-    private final PublishSubject<BitvavoError> errorPublisher;
+    private final PublishSubject<Either<MessageIn, BitvavoError>> messagePublisher;
 
+    private final CountDownLatch closeLatch = new CountDownLatch(1);
     private final HashMap<MessageInEvent, Class<? extends MessageIn>> eventMap = new HashMap<>() {{
         put(MessageInEvent.TICKER, Ticker.class);
         put(MessageInEvent.SUBSCRIBED, Subscription.class);
@@ -28,25 +29,21 @@ public class MyClient extends WebSocketClient {
         super(uri);
         this.objectMapper = objectMapper;
         this.messagePublisher = PublishSubject.create();
-        this.errorPublisher = PublishSubject.create();
-
-        connectBlocking();
     }
 
-    public Flowable<MessageIn> stream() {
+    public Flowable<Either<MessageIn, BitvavoError>> stream() {
         return messagePublisher.toFlowable(BackpressureStrategy.BUFFER);
-    }
-
-    public Flowable<BitvavoError> error() {
-        return errorPublisher.toFlowable(BackpressureStrategy.LATEST);
     }
 
     public void send(final MessageOut message) throws JsonProcessingException {
         send(objectMapper.writeValueAsString(message));
     }
 
-    @Override
-    public void onOpen(final ServerHandshake handshakedata) {
+    public void blockUntilClosed() throws InterruptedException {
+        if (isOpen()) {
+            closeLatch.await();
+            close();
+        }
     }
 
     @Override
@@ -58,14 +55,16 @@ public class MyClient extends WebSocketClient {
             final var maybeMessage = Optional.ofNullable(json.get("event"))
                 .map(JsonNode::asText)
                 .map(MessageInEvent::deserialize)
-                .flatMap(event -> tryDeserialize(message, eventMap.get(event)));
-
-            maybeMessage.ifPresent(messagePublisher::onNext);
+                .flatMap(event -> tryDeserialize(message, eventMap.get(event)))
+                .map(Either::<MessageIn, BitvavoError>left);
 
             final var maybeError = Optional.ofNullable(json.get("error"))
-                .flatMap(__ -> tryDeserialize(message, BitvavoError.class));
+                .flatMap(__ -> tryDeserialize(message, BitvavoError.class))
+                .map(Either::<MessageIn, BitvavoError>right);
 
-            maybeError.ifPresent(errorPublisher::onNext);
+            final var either = maybeMessage.or(() -> maybeError);
+            either.ifPresent(messagePublisher::onNext);
+
         } catch (final JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -73,12 +72,15 @@ public class MyClient extends WebSocketClient {
 
     @Override
     public void onClose(final int code, final String reason, final boolean remote) {
-        System.out.println("Connection closed: " + code + " " + reason);
+        closeLatch.countDown();
     }
 
     @Override
-    public void onError(final Exception ex) {
-        System.out.println("Error!!!!!!: " + ex.getMessage());
+    public void onOpen(final ServerHandshake serverHandshake) {
+    }
+
+    @Override
+    public void onError(final Exception e) {
     }
 
     private <T> Optional<T> tryDeserialize(final String json, final Class<T> clazz) {
