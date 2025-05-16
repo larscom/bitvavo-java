@@ -65,7 +65,7 @@ public class WebSocketListener {
 
         final var activeSubscriptions = new HashMap<ChannelName, List<String>>();
 
-        new Thread(() -> {
+        Thread.startVirtualThread(() -> {
             while (running) {
                 try {
                     webSocket = new WebSocket(objectMapper);
@@ -99,7 +99,7 @@ public class WebSocketListener {
                     throw new RuntimeException(e);
                 }
             }
-        }).start();
+        });
 
         startLatch.await();
     }
