@@ -24,6 +24,7 @@ public class WebSocket extends WebSocketClient {
         put(MessageInEvent.TICKER, Ticker.class);
         put(MessageInEvent.SUBSCRIBED, Subscription.class);
         put(MessageInEvent.UNSUBSCRIBED, Subscription.class);
+        put(MessageInEvent.BOOK, Book.class);
     }};
 
     public WebSocket(final ObjectMapper objectMapper) throws InterruptedException, URISyntaxException {

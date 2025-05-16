@@ -16,24 +16,17 @@ import java.util.Optional;
 @JsonDeserialize(as = ImmutableMessageOut.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface MessageOut {
-
     Action getAction();
 
     Optional<List<Channel>> getChannels();
 
-    /**
-     * API key
-     */
+    /// API key
     Optional<String> getKey();
 
-    /**
-     * SHA256 HMAC hex digest of timestamp + method + url + body
-     */
+    /// SHA256 HMAC hex digest of timestamp + method + url + body
     Optional<String> getSignature();
 
-    /**
-     * The current timestamp in milliseconds since 1 Jan 1970
-     */
+    /// The current timestamp in milliseconds since 1 Jan 1970
     Optional<Long> getTimestamp();
 
     @Value.Check
