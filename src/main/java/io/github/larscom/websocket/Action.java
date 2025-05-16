@@ -1,4 +1,4 @@
-package io.github.larscom.ws;
+package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

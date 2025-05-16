@@ -1,7 +1,7 @@
 package io.github.larscom;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.ws.*;
+import io.github.larscom.websocket.*;
 
 import java.util.List;
 
@@ -19,6 +19,7 @@ public class Main {
                         System.out.println("Ticker: " + ticker);
                     }
                     default -> {
+                        System.out.println("Unhandled type: " + message.getClass().getSimpleName());
                     }
                 }
             });

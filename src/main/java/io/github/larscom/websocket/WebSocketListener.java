@@ -1,4 +1,4 @@
-package io.github.larscom.ws;
+package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,7 +72,6 @@ public class WebSocketListener {
         final var activeSubscriptions = new HashMap<MessageInEvent, List<String>>();
 
         new Thread(() -> {
-
             while (running) {
                 try {
                     webSocket = new WebSocket(objectMapper);
@@ -80,18 +79,9 @@ public class WebSocketListener {
                         startLatch.countDown();
 
                         if (!activeSubscriptions.isEmpty()) {
-                            final var channels = activeSubscriptions
-                                .entrySet()
-                                .stream()
-                                .map(entry -> Channel.builder()
-                                    .name(entry.getKey().serialize())
-                                    .markets(entry.getValue())
-                                    .build())
-                                .toList();
-
                             final var message = MessageOut.builder()
                                 .action(Action.SUBSCRIBE)
-                                .channels(channels)
+                                .channels(mapToChannels(activeSubscriptions))
                                 .build();
 
                             webSocket.send(message);
@@ -118,5 +108,16 @@ public class WebSocketListener {
         }).start();
 
         startLatch.await();
+    }
+
+    private static List<Channel> mapToChannels(final HashMap<MessageInEvent, List<String>> subscriptions) {
+        return subscriptions
+            .entrySet()
+            .stream()
+            .map(entry -> Channel.builder()
+                .name(entry.getKey().serialize())
+                .markets(entry.getValue())
+                .build())
+            .toList();
     }
 }

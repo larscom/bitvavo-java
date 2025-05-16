@@ -1,4 +1,4 @@
-package io.github.larscom.ws;
+package io.github.larscom.websocket;
 
 public interface MessageIn {
     MessageInEvent getEvent();

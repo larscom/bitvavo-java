@@ -1,28 +1,32 @@
-package io.github.larscom.ws;
+package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 @Value.Immutable
 @Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-@JsonDeserialize(as = ImmutableTicker.class)
+@JsonDeserialize(as = ImmutableError.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface Ticker extends MessageIn {
-    String getMarket();
+public interface Error {
+    int getErrorCode();
 
-    Optional<BigDecimal> getBestBid();
+    @JsonProperty("error")
+    String getErrorMessage();
 
-    Optional<BigDecimal> getBestBidSize();
+    Optional<String> getAction();
 
-    Optional<BigDecimal> getBestAsk();
+    static Builder builder() {
+        return new Builder();
+    }
 
-    Optional<BigDecimal> getBestAskSize();
-
-    Optional<BigDecimal> getLastPrice();
+    class Builder extends ImmutableError.Builder {
+    }
 }
+
+
