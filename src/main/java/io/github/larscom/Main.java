@@ -17,9 +17,9 @@ public class Main {
 
         while (true) {
             try {
-                final var client = new MyClient(new URI("wss://ws.bitvavo.com/v2"), objectMapper);
-                if (client.connectBlocking()) {
-                    client.stream()
+                final var socket = new WebSocket(new URI("wss://ws.bitvavo.com/v2"), objectMapper);
+                if (socket.connectBlocking()) {
+                    socket.stream()
                         .filter(Either::isLeft)
                         .map(Either::getLeft)
                         .subscribe(message -> {
@@ -42,9 +42,9 @@ public class Main {
                             .build()))
                         .build();
 
-                    client.send(message);
+                    socket.send(message);
 
-                    client.blockUntilClosed();
+                    socket.blockUntilClosed();
                 } else {
                     Thread.sleep(1000);
                 }

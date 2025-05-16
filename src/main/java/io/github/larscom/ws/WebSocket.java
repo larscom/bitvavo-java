@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
-public class MyClient extends WebSocketClient {
+public class WebSocket extends WebSocketClient {
     private final ObjectMapper objectMapper;
     private final PublishSubject<Either<MessageIn, BitvavoError>> messagePublisher;
 
@@ -25,7 +25,7 @@ public class MyClient extends WebSocketClient {
         put(MessageInEvent.UNSUBSCRIBED, Subscription.class);
     }};
 
-    public MyClient(final URI uri, final ObjectMapper objectMapper) throws InterruptedException {
+    public WebSocket(final URI uri, final ObjectMapper objectMapper) throws InterruptedException {
         super(uri);
         this.objectMapper = objectMapper;
         this.messagePublisher = PublishSubject.create();
