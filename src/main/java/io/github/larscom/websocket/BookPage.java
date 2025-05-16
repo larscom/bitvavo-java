@@ -11,9 +11,9 @@ import java.util.Optional;
 @Value.Immutable
 @Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-@JsonDeserialize(as = ImmutableBookPage.class)
+@JsonDeserialize(as = ImmutableBookPage.class, using = BookPageDeserializer.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface BookPage extends MessageIn {
+public interface BookPage {
     /// Bid / ask price.
     BigDecimal getPrice();
 
