@@ -11,15 +11,22 @@ import java.util.Optional;
 @Value.Immutable
 @Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-@JsonDeserialize(as = ImmutableBitvavoError.class)
+@JsonDeserialize(as = ImmutableError.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface BitvavoError {
+public interface Error {
     int getErrorCode();
 
     @JsonProperty("error")
     String getErrorMessage();
 
     Optional<String> getAction();
+
+    static Builder builder() {
+        return new Builder();
+    }
+
+    class Builder extends ImmutableError.Builder {
+    }
 }
 
 

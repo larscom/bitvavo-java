@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.github.larscom.ws.*;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class Main {
 
         while (true) {
             try {
-                final var socket = new WebSocket(new URI("wss://ws.bitvavo.com/v2"), objectMapper);
+                final var socket = new WebSocket(objectMapper);
                 if (socket.connectBlocking()) {
                     socket.stream()
                         .filter(Either::isLeft)
