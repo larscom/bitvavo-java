@@ -76,7 +76,6 @@ public class WebSocketListener {
             while (running) {
                 try {
                     webSocket = new WebSocket(objectMapper);
-                    webSocket.setConnectionLostTimeout(5);
                     if (webSocket.connectBlocking()) {
                         startLatch.countDown();
 
