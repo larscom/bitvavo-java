@@ -48,9 +48,15 @@ public class WebSocket extends WebSocketClient {
         }
     }
 
+    public void terminate() {
+        if (isOpen()) {
+            closeLatch.countDown();
+            close();
+        }
+    }
+
     @Override
     public void onMessage(final String message) {
-        System.out.println("Incoming message: " + message);
         try {
             final JsonNode json = objectMapper.readTree(message);
 
