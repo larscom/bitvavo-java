@@ -1,6 +1,6 @@
 package io.github.larscom.ws;
 
-public class Either<L, R> {
+public final class Either<L, R> {
     private final L left;
     private final R right;
 

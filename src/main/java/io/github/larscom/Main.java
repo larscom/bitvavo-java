@@ -38,7 +38,7 @@ public class Main {
                         .action(Action.SUBSCRIBE)
                         .channels(List.of(Channel.builder()
                             .name("ticker")
-                            .markets(List.of("ETH-EUR"))
+                            .markets(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
                             .build()))
                         .build();
 

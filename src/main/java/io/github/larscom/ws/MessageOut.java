@@ -40,7 +40,7 @@ public interface MessageOut {
     default void check() {
         getChannels().ifPresent(channels -> {
             if (channels.isEmpty()) {
-                throw new IllegalStateException("Cannot build MessageOut, some of required attributes are empty [channels]");
+                throw new IllegalStateException("Cannot build MessageOut, some of the attributes are empty [channels]");
             }
         });
     }
