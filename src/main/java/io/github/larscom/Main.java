@@ -24,7 +24,11 @@ public class Main {
                 }
             });
 
-        listener.subscribe(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"));
+        final var channels = List.of(
+            Channel.builder().name(ChannelName.TICKER).markets(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
+        );
+
+        listener.subscribe(channels);
 
         Thread.currentThread().join();
     }

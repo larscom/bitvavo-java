@@ -28,28 +28,22 @@ public class WebSocketListener {
         return messagePublisher.toFlowable(BackpressureStrategy.BUFFER);
     }
 
-    public void subscribe(final List<String> markets) throws JsonProcessingException {
+    public void subscribe(final List<Channel> channels) throws JsonProcessingException {
         if (running) {
             final var message = MessageOut.builder()
                 .action(Action.SUBSCRIBE)
-                .channels(List.of(Channel.builder()
-                    .name("ticker")
-                    .markets(markets)
-                    .build()))
+                .channels(channels)
                 .build();
 
             webSocket.send(message);
         }
     }
 
-    public void unsubscribe(final List<String> markets) throws JsonProcessingException {
+    public void unsubscribe(final List<Channel> channels) throws JsonProcessingException {
         if (running) {
             final var message = MessageOut.builder()
                 .action(Action.UNSUBSCRIBE)
-                .channels(List.of(Channel.builder()
-                    .name("ticker")
-                    .markets(markets)
-                    .build()))
+                .channels(channels)
                 .build();
 
             webSocket.send(message);
@@ -69,7 +63,7 @@ public class WebSocketListener {
         final var objectMapper = new ObjectMapper();
         objectMapper.registerModule(new Jdk8Module());
 
-        final var activeSubscriptions = new HashMap<MessageInEvent, List<String>>();
+        final var activeSubscriptions = new HashMap<ChannelName, List<String>>();
 
         new Thread(() -> {
             while (running) {
@@ -110,12 +104,12 @@ public class WebSocketListener {
         startLatch.await();
     }
 
-    private static List<Channel> mapToChannels(final HashMap<MessageInEvent, List<String>> subscriptions) {
+    private static List<Channel> mapToChannels(final HashMap<ChannelName, List<String>> subscriptions) {
         return subscriptions
             .entrySet()
             .stream()
             .map(entry -> Channel.builder()
-                .name(entry.getKey().serialize())
+                .name(entry.getKey())
                 .markets(entry.getValue())
                 .build())
             .toList();

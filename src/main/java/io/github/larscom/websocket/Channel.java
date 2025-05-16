@@ -18,7 +18,7 @@ import java.util.Optional;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface Channel {
 
-    String getName();
+    ChannelName getName();
 
     List<String> getMarkets();
 

@@ -17,6 +17,6 @@ import java.util.List;
 public interface Subscription extends MessageIn {
 
     @JsonProperty("subscriptions")
-    HashMap<MessageInEvent, List<String>> getActiveSubscriptions();
+    HashMap<ChannelName, List<String>> getActiveSubscriptions();
 
 }
