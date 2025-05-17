@@ -18,8 +18,14 @@ if git tag --list | grep -q "^$TAG$"; then
   exit 1
 fi
 
+echo "Updating version in README.md to $VERSION"
+sed -i "s|\(<version>\)[^<]*\(</version>\)|\1$VERSION\2|" README.md
+
+git add README.md
+git commit -m "update README.md dependency version to $VERSION"
+
 git tag -a "$TAG" -m "Release $TAG"
 
 git push --follow-tags
 
-echo "Tag $TAG created and pushed successfully."
+echo "✔ Tag $TAG created, README.md updated, and everything pushed successfully."
