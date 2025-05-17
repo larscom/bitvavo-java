@@ -23,13 +23,18 @@ public interface Channel {
     List<String> getMarkets();
 
     @JsonProperty("interval")
-    Optional<List<String>> getIntervals();
+    Optional<List<Interval>> getIntervals();
 
     @Value.Check
     default void check() {
         if (getMarkets().isEmpty()) {
             throw new IllegalStateException("Cannot build Channel, some of the attributes are empty [markets]");
         }
+        getIntervals().ifPresent(intervals -> {
+            if (intervals.isEmpty()) {
+                throw new IllegalStateException("Cannot build Channel, some of the attributes are empty [intervals]");
+            }
+        });
     }
 
     static Builder builder() {

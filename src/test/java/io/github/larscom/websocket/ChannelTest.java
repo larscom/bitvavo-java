@@ -1,10 +1,7 @@
-package io.github.larscom;
+package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import io.github.larscom.websocket.Channel;
-import io.github.larscom.websocket.ChannelName;
+import io.github.larscom.Jackson;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,9 +12,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class ChannelTest {
 
     @Test
-    void testChannel() throws JsonProcessingException {
-        final var objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new Jdk8Module());
+    void testSerializeDeserialize() throws JsonProcessingException {
+        final var objectMapper = Jackson.getObjectMapper();
 
         final var channel = Channel.builder()
             .name(ChannelName.TICKER)
@@ -25,8 +21,6 @@ class ChannelTest {
             .build();
 
         final var json = objectMapper.writeValueAsString(channel);
-        System.out.printf(json);
-
         assertThat(json).isEqualTo("{\"name\":\"ticker\",\"markets\":[\"ETH-EUR\"]}");
 
         final var deserialized = objectMapper.readValue(json, Channel.class);
@@ -37,5 +31,4 @@ class ChannelTest {
             .isInstanceOf(Optional.class)
             .isEmpty();
     }
-
 }

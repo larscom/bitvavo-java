@@ -3,6 +3,7 @@ package io.github.larscom.websocket;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import io.github.larscom.Jackson;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
@@ -37,7 +38,7 @@ public class WebSocketListener {
 
             webSocket.send(message);
         } else {
-            throw new IllegalStateException("WebSocket connection is closed");
+            throw new IllegalStateException("WebSocket thread is not running");
         }
     }
 
@@ -50,7 +51,7 @@ public class WebSocketListener {
 
             webSocket.send(message);
         } else {
-            throw new IllegalStateException("WebSocket connection is closed");
+            throw new IllegalStateException("WebSocket thread is not running");
         }
     }
 
@@ -63,16 +64,12 @@ public class WebSocketListener {
         running = true;
 
         final var startLatch = new CountDownLatch(1);
-
-        final var objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new Jdk8Module());
-
         final var activeSubscriptions = new HashMap<ChannelName, List<String>>();
 
         Thread.startVirtualThread(() -> {
             while (running) {
                 try {
-                    webSocket = new WebSocket(objectMapper);
+                    webSocket = new WebSocket(Jackson.getObjectMapper());
                     if (webSocket.connectBlocking()) {
                         startLatch.countDown();
 
@@ -86,11 +83,9 @@ public class WebSocketListener {
                         }
 
                         webSocket.stream().subscribe(either -> {
-                            if (either.isLeft()) {
-                                if (either.getLeft() instanceof final Subscription subscription) {
-                                    activeSubscriptions.clear();
-                                    activeSubscriptions.putAll(subscription.getActiveSubscriptions());
-                                }
+                            if (either.isLeft() && either.getLeft() instanceof final Subscription subscription) {
+                                activeSubscriptions.clear();
+                                activeSubscriptions.putAll(subscription.getActiveSubscriptions());
                             }
                             messagePublisher.onNext(either);
                         });
