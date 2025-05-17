@@ -51,7 +51,7 @@
         <rxjava.version>3.1.10</rxjava.version>
         <immutables.version>2.10.1</immutables.version>
 
-        <junit.jupiter.version>5.9.1</junit.jupiter.version>
+        <junit.jupiter.version>5.12.2</junit.jupiter.version>
         <assertj.version>3.27.3</assertj.version>
 
         <sonatype.plugin.version>0.7.0</sonatype.plugin.version>
