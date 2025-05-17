@@ -1,7 +1,7 @@
 package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.Jackson;
+import io.github.larscom.internal.ObjectMapperProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -13,7 +13,7 @@ class ChannelTest {
 
     @Test
     void testSerializeDeserialize() throws JsonProcessingException {
-        final var objectMapper = Jackson.getObjectMapper();
+        final var objectMapper = ObjectMapperProvider.getObjectMapper();
 
         final var channel = Channel.builder()
             .name(ChannelName.TICKER)

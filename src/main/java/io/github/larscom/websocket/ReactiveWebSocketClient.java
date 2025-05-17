@@ -1,9 +1,7 @@
 package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import io.github.larscom.Jackson;
+import io.github.larscom.internal.ObjectMapperProvider;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
@@ -13,13 +11,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class WebSocketListener {
+public class ReactiveWebSocketClient {
     private boolean running = false;
     private WebSocket webSocket;
 
     private final PublishSubject<Either<MessageIn, Error>> messagePublisher;
 
-    public WebSocketListener() throws InterruptedException {
+    public ReactiveWebSocketClient() throws InterruptedException {
         this.messagePublisher = PublishSubject.create();
 
         startBlocking();
@@ -69,7 +67,7 @@ public class WebSocketListener {
         Thread.startVirtualThread(() -> {
             while (running) {
                 try {
-                    webSocket = new WebSocket(Jackson.getObjectMapper());
+                    webSocket = new WebSocket(ObjectMapperProvider.getObjectMapper());
                     if (webSocket.connectBlocking()) {
                         startLatch.countDown();
 

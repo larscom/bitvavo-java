@@ -1,7 +1,7 @@
 package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.Jackson;
+import io.github.larscom.internal.ObjectMapperProvider;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -10,7 +10,7 @@ class IntervalTest {
 
     @Test
     void testSerializeDeserialize() throws JsonProcessingException {
-        final var objectMapper = Jackson.getObjectMapper();
+        final var objectMapper = ObjectMapperProvider.getObjectMapper();
 
         final var interval = Interval.H1;
 

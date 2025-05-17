@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
-public class WebSocket extends WebSocketClient {
+class WebSocket extends WebSocketClient {
     private final ObjectMapper objectMapper;
     private final CountDownLatch closeLatch;
     private final PublishSubject<Either<MessageIn, Error>> messagePublisher;

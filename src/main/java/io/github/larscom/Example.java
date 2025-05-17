@@ -5,21 +5,21 @@ import io.github.larscom.websocket.*;
 
 import java.util.List;
 
-public class Main {
+class Example {
 
     public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
-        final var listener = new WebSocketListener();
+        final var client = new ReactiveWebSocketClient();
 
         final var channels = List.of(
             Channel.builder().name(ChannelName.TICKER).markets(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.BOOK).markets(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
         );
 
-        listener.subscribe(channels);
+        client.subscribe(channels);
 
-        listener.stream().filter(Either::isRight).map(Either::getRight).subscribe(System.out::println);
+        client.stream().filter(Either::isRight).map(Either::getRight).subscribe(System.out::println);
 
-        listener.stream()
+        client.stream()
             .filter(Either::isLeft)
             .map(Either::getLeft)
             .subscribe(message -> {

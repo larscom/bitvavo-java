@@ -15,7 +15,7 @@ import java.util.Optional;
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(as = ImmutableMessageOut.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface MessageOut {
+interface MessageOut {
     Action getAction();
 
     Optional<List<Channel>> getChannels();

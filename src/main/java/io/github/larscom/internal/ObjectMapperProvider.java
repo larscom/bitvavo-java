@@ -1,9 +1,9 @@
-package io.github.larscom;
+package io.github.larscom.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
-public final class Jackson {
+public final class ObjectMapperProvider {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {

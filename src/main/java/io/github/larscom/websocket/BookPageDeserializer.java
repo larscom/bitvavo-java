@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public class BookPageDeserializer extends JsonDeserializer<BookPage> {
+class BookPageDeserializer extends JsonDeserializer<BookPage> {
 
     @Override
     public BookPage deserialize(final JsonParser p, final DeserializationContext ctx) throws IOException {
