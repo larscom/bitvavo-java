@@ -7,7 +7,7 @@
     <groupId>io.github.larscom</groupId>
     <artifactId>bitvavo-java</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 
     <name>Bitvavo Java Library</name>
     <description>Bitvavo Java library to interact with the Bitvavo platform</description>
@@ -44,45 +44,60 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <java.websocket.version>1.6.0</java.websocket.version>
+        <jackson.databind.version>2.17.2</jackson.databind.version>
+        <jackson.jdk8.version>2.19.0</jackson.jdk8.version>
+        <rxjava.version>3.1.10</rxjava.version>
+        <immutables.version>2.10.1</immutables.version>
+
+        <junit.jupiter.version>5.9.1</junit.jupiter.version>
+        <assertj.version>3.27.3</assertj.version>
+
+        <sonatype.plugin.version>0.7.0</sonatype.plugin.version>
+        <source.plugin.version>3.3.0</source.plugin.version>
+        <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
+        <gpg.plugin.version>3.2.7</gpg.plugin.version>
+        <compiler.plugin.version>3.12.1</compiler.plugin.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.java-websocket</groupId>
             <artifactId>Java-WebSocket</artifactId>
-            <version>1.6.0</version>
+            <version>${java.websocket.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.17.2</version>
+            <version>${jackson.databind.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>2.19.0</version>
+            <version>${jackson.jdk8.version}</version>
         </dependency>
         <dependency>
             <groupId>io.reactivex.rxjava3</groupId>
             <artifactId>rxjava</artifactId>
-            <version>3.1.10</version>
+            <version>${rxjava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
-            <version>2.10.1</version>
+            <version>${immutables.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.9.1</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.27.3</version>
+            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -95,7 +110,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.3.0</version>
+                        <version>${sonatype.plugin.version}</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
@@ -107,7 +122,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.3.0</version>
+                        <version>${source.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -120,7 +135,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.6.3</version>
+                        <version>${javadoc.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -133,7 +148,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>${gpg.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -159,7 +174,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
+                <version>${compiler.plugin.version}</version>
             </plugin>
         </plugins>
     </build>
