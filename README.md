@@ -5,3 +5,11 @@
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <br />
+
+```xml
+<dependency>
+    <groupId>io.github.larscom</groupId>
+    <artifactId>bitvavo-java</artifactId>
+    <version>0.0.2</version>
+</dependency>
+```
