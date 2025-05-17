@@ -10,6 +10,6 @@
 <dependency>
     <groupId>io.github.larscom</groupId>
     <artifactId>bitvavo-java</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
