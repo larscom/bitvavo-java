@@ -36,6 +36,8 @@ public class WebSocketListener {
                 .build();
 
             webSocket.send(message);
+        } else {
+            throw new IllegalStateException("WebSocket connection is closed");
         }
     }
 
@@ -47,6 +49,8 @@ public class WebSocketListener {
                 .build();
 
             webSocket.send(message);
+        } else {
+            throw new IllegalStateException("WebSocket connection is closed");
         }
     }
 
