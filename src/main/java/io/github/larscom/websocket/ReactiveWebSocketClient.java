@@ -62,7 +62,7 @@ public class ReactiveWebSocketClient {
         running = true;
 
         final var startLatch = new CountDownLatch(1);
-        final var activeSubscriptions = new HashMap<ChannelName, List<String>>();
+        final var activeSubscriptions = new HashMap<ChannelName, SubscriptionValue>();
 
         Thread.startVirtualThread(() -> {
             while (running) {
@@ -101,14 +101,20 @@ public class ReactiveWebSocketClient {
         startLatch.await();
     }
 
-    private static List<Channel> mapToChannels(final HashMap<ChannelName, List<String>> subscriptions) {
+    private static List<Channel> mapToChannels(final HashMap<ChannelName, SubscriptionValue> subscriptions) {
         return subscriptions
             .entrySet()
             .stream()
-            .map(entry -> Channel.builder()
-                .name(entry.getKey())
-                .markets(entry.getValue())
-                .build())
+            .map(entry -> {
+                final var channelBuilder = Channel.builder()
+                    .name(entry.getKey());
+
+                if (entry.getValue() instanceof final SubscriptionSimpleValue value) {
+                    channelBuilder.markets(value.getMarkets());
+                }
+
+                return channelBuilder.build();
+            })
             .toList();
     }
 }

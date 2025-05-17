@@ -30,6 +30,9 @@ class Example {
                     case final Book book -> {
                         System.out.println("Book: " + book);
                     }
+                    case final Subscription subscription -> {
+                        System.out.println("Subscription: " + subscription.getActiveSubscriptions());
+                    }
                     default -> {
                         System.out.println("Unhandled type: " + message.getClass().getSimpleName());
                     }
