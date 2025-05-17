@@ -12,6 +12,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(as = ImmutableSubscriptionSimpleValue.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressWarnings("immutables")
 public interface SubscriptionSimpleValue extends SubscriptionValue {
     List<String> getMarkets();
 }

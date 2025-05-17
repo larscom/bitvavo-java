@@ -13,6 +13,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(as = ImmutableSubscriptionIntervalValue.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressWarnings("immutables")
 public interface SubscriptionIntervalValue extends SubscriptionValue {
     Map<Interval, List<String>> getIntervalWithMarkets();
 }
