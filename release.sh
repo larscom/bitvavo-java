@@ -22,7 +22,7 @@ echo "Updating version in README.md to $VERSION"
 sed -i "s|\(<version>\)[^<]*\(</version>\)|\1$VERSION\2|" README.md
 
 git add README.md
-git commit -m "update README.md dependency version to $VERSION"
+git commit -m "prepared for release version $VERSION"
 
 git tag -a "$TAG" -m "Release $TAG"
 
