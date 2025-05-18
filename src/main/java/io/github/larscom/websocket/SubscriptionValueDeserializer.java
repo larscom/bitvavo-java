@@ -8,11 +8,13 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 class SubscriptionValueDeserializer extends JsonDeserializer<SubscriptionValue> {
-
 
     @Override
     public SubscriptionValue deserialize(final JsonParser p, final DeserializationContext ctx) throws IOException {
@@ -20,13 +22,27 @@ class SubscriptionValueDeserializer extends JsonDeserializer<SubscriptionValue> 
         final JsonNode node = codec.readTree(p);
 
         if (node.isArray()) {
-            final List<String> markets = codec.treeToValue(node, List.class);
-            return ImmutableSubscriptionSimpleValue.builder().markets(markets).build();
-        } else if (node.isObject()) {
-            final Map<Interval, List<String>> intervalMap = codec.treeToValue(node, Map.class);
-            return ImmutableSubscriptionIntervalValue.builder().intervalWithMarkets(intervalMap).build();
-        } else {
-            throw new JsonParseException(p, "Unexpected JSON type for Value");
+            final Set<String> markets = codec.treeToValue(node, Set.class);
+            return ImmutableSubscriptionSimpleValue.builder()
+                .markets(markets)
+                .build();
         }
+
+        if (node.isObject()) {
+            final Map<String, ArrayList<String>> map = codec.treeToValue(node, Map.class);
+            final Map<Interval, Set<String>> intervalMap = map
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                    entry -> Interval.deserialize(entry.getKey()),
+                    entry -> new HashSet<>(entry.getValue())
+                ));
+
+            return ImmutableSubscriptionIntervalValue.builder()
+                .intervalWithMarkets(intervalMap)
+                .build();
+        }
+
+        throw new JsonParseException(p, "Unexpected JSON type for SubscriptionValue");
     }
 }

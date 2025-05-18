@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.websocket.*;
 
 import java.util.List;
+import java.util.Set;
 
 class Example {
 
@@ -12,7 +13,8 @@ class Example {
 
         final var channels = List.of(
             Channel.builder().name(ChannelName.TICKER).markets(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
-            Channel.builder().name(ChannelName.BOOK).markets(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
+            Channel.builder().name(ChannelName.BOOK).markets(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
+            Channel.builder().name(ChannelName.CANDLES).intervals(Set.of(Interval.H8, Interval.H2)).markets(List.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
         );
 
         client.subscribe(channels);

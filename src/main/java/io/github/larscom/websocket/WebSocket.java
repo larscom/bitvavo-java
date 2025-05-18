@@ -93,6 +93,7 @@ class WebSocket extends WebSocketClient {
                 .build();
 
             messagePublisher.onNext(Either.right(error));
+            closeLatch.countDown();
         }
     }
 

@@ -9,7 +9,9 @@ import io.reactivex.rxjava3.subjects.PublishSubject;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 public class ReactiveWebSocketClient {
     private boolean running = false;
@@ -111,6 +113,17 @@ public class ReactiveWebSocketClient {
 
                 if (entry.getValue() instanceof final SubscriptionSimpleValue value) {
                     channelBuilder.markets(value.getMarkets());
+                }
+
+                if (entry.getValue() instanceof final SubscriptionIntervalValue value) {
+                    final var intervals = value.getIntervalWithMarkets().keySet();
+                    final var markets = value.getIntervalWithMarkets()
+                        .values()
+                        .stream()
+                        .flatMap(Set::stream)
+                        .collect(Collectors.toSet());
+
+                    channelBuilder.markets(markets).intervals(intervals);
                 }
 
                 return channelBuilder.build();

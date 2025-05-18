@@ -17,8 +17,8 @@ public enum ChannelName {
     }
 
     @JsonCreator
-    public static ChannelName deserialize(final String event) {
-        return ChannelName.valueOf(event.toUpperCase());
+    public static ChannelName deserialize(final String channel) {
+        return ChannelName.valueOf(channel.toUpperCase());
     }
 }
 
