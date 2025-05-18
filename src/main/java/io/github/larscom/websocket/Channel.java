@@ -31,14 +31,16 @@ public interface Channel {
             throw new IllegalStateException("Cannot build Channel, some of the attributes are empty [markets]");
         }
 
-        getIntervals().ifPresent(intervals -> {
-            if (intervals.isEmpty()) {
-                throw new IllegalStateException("Cannot build Channel, some of the attributes are empty [intervals]");
-            }
-        });
-
         if (getName() == ChannelName.CANDLES) {
-
+            getIntervals().ifPresent(intervals -> {
+                if (intervals.isEmpty()) {
+                    throw new IllegalStateException("Cannot build Channel, some of the attributes are empty [intervals]");
+                }
+            });
+        } else {
+            getIntervals().ifPresent(__ -> {
+                throw new IllegalStateException("Cannot build Channel, intervals is only supported for CANDLES");
+            });
         }
     }
 

@@ -17,6 +17,7 @@ class Example {
         final var channels = List.of(
             Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
+            Channel.builder().name(ChannelName.TRADES).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.CANDLES).intervals(Set.of(Interval.M1)).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
         );
 
@@ -40,6 +41,9 @@ class Example {
                     }
                     case final Candle candle -> {
                         System.out.println("Candle: " + candle);
+                    }
+                    case final Trade trade -> {
+                        System.out.println("Trade: " + trade);
                     }
                     default -> {
                         System.out.println("Unhandled type: " + message.getClass().getSimpleName());
