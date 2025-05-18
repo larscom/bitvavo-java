@@ -17,7 +17,7 @@ class Example {
         final var channels = List.of(
             Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
-            Channel.builder().name(ChannelName.CANDLES).intervals(Set.of(Interval.H8, Interval.H2)).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
+            Channel.builder().name(ChannelName.CANDLES).intervals(Set.of(Interval.M1)).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
         );
 
         client.subscribe(channels);
@@ -37,6 +37,9 @@ class Example {
                     }
                     case final Subscription subscription -> {
                         System.out.println("Subscription: " + subscription.getActiveSubscriptions());
+                    }
+                    case final Candle candle -> {
+                        System.out.println("Candle: " + candle);
                     }
                     default -> {
                         System.out.println("Unhandled type: " + message.getClass().getSimpleName());
