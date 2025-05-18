@@ -65,6 +65,10 @@ public class ReactiveWebSocketClient {
         return mapTo(stream(), Subscription.class);
     }
 
+    public Flowable<Authentication> authentication() {
+        return mapTo(stream(), Authentication.class);
+    }
+
     public Flowable<Candle> candles() {
         return mapTo(stream(), Candle.class);
     }
@@ -124,19 +128,20 @@ public class ReactiveWebSocketClient {
                         }
 
                         webSocket.stream().subscribe(either -> {
-                            if (either.isLeft() && either.getLeft() instanceof final Subscription subscription) {
-                                activeSubscriptions.clear();
-                                activeSubscriptions.putAll(subscription.getActiveSubscriptions());
-                            }
-                            if (either.isLeft() && either.getLeft() instanceof final Authenticate authenticate) {
-                                if (authenticate.getAuthenticated()) {
+                            if (either.isLeft()) {
+                                if (either.getLeft() instanceof final Subscription subscription) {
+                                    activeSubscriptions.clear();
+                                    activeSubscriptions.putAll(subscription.getActiveSubscriptions());
+                                }
+                                if (either.getLeft() instanceof final Authentication authentication) {
                                     startLatch.countDown();
 
-                                    if (!activeSubscriptions.isEmpty()) {
+                                    if (authentication.getAuthenticated() && !activeSubscriptions.isEmpty()) {
                                         sendSubscribe(mapToChannels(activeSubscriptions));
                                     }
                                 }
                             }
+
                             if (either.isRight() && credentials.isPresent()) {
                                 startLatch.countDown();
                             }

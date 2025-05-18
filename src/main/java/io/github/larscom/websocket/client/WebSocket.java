@@ -32,7 +32,7 @@ class WebSocket extends WebSocketClient {
         put(MessageInEvent.BOOK, Book.class);
         put(MessageInEvent.CANDLE, Candle.class);
         put(MessageInEvent.TRADE, Trade.class);
-        put(MessageInEvent.AUTHENTICATE, Authenticate.class);
+        put(MessageInEvent.AUTHENTICATE, Authentication.class);
     }};
 
     public WebSocket(final ObjectMapper objectMapper) throws InterruptedException, URISyntaxException {

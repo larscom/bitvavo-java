@@ -8,9 +8,9 @@ import org.immutables.value.Value;
 @Value.Immutable
 @Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-@JsonDeserialize(as = ImmutableAuthenticate.class)
+@JsonDeserialize(as = ImmutableAuthentication.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface Authenticate extends MessageIn {
+public interface Authentication extends MessageIn {
     /// Whether the user is successfully authenticated.
     boolean getAuthenticated();
 }
