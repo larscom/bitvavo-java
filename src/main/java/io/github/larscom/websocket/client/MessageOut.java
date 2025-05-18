@@ -1,9 +1,10 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.larscom.websocket.Channel;
 import org.immutables.value.Value;
 
 import java.util.List;

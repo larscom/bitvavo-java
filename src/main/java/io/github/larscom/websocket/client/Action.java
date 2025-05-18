@@ -1,9 +1,9 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.client;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum Action {
+enum Action {
     AUTHENTICATE, SUBSCRIBE, UNSUBSCRIBE;
 
     @JsonValue

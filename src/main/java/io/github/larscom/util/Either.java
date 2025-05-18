@@ -1,4 +1,4 @@
-package io.github.larscom.websocket;
+package io.github.larscom.util;
 
 public final class Either<L, R> {
     private final L left;

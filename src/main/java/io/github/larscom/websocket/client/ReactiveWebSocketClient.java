@@ -1,7 +1,10 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.internal.ObjectMapperProvider;
+import io.github.larscom.util.Either;
+import io.github.larscom.websocket.*;
+import io.github.larscom.websocket.Error;
 import io.github.larscom.websocket.subscription.Subscription;
 import io.github.larscom.websocket.subscription.SubscriptionWithInterval;
 import io.github.larscom.websocket.subscription.SubscriptionWithMarkets;
@@ -21,7 +24,7 @@ public class ReactiveWebSocketClient {
     private boolean running = false;
     private WebSocket webSocket;
 
-    private final PublishSubject<Either<MessageIn, Error>> messagePublisher;
+    private final PublishSubject<Either<MessageIn, io.github.larscom.websocket.Error>> messagePublisher;
 
     public ReactiveWebSocketClient() throws InterruptedException {
         this.messagePublisher = PublishSubject.create();

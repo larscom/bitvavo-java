@@ -1,8 +1,11 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.larscom.util.Either;
+import io.github.larscom.websocket.*;
+import io.github.larscom.websocket.Error;
 import io.github.larscom.websocket.subscription.Subscription;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
@@ -19,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
 class WebSocket extends WebSocketClient {
     private final ObjectMapper objectMapper;
     private final CountDownLatch closeLatch;
-    private final PublishSubject<Either<MessageIn, Error>> messagePublisher;
+    private final PublishSubject<Either<MessageIn, io.github.larscom.websocket.Error>> messagePublisher;
 
     private final HashMap<MessageInEvent, Class<? extends MessageIn>> eventMap = new HashMap<>() {{
         put(MessageInEvent.TICKER, Ticker.class);
@@ -35,7 +38,7 @@ class WebSocket extends WebSocketClient {
         this.messagePublisher = PublishSubject.create();
     }
 
-    public Flowable<Either<MessageIn, Error>> stream() {
+    public Flowable<Either<MessageIn, io.github.larscom.websocket.Error>> stream() {
         return messagePublisher.toFlowable(BackpressureStrategy.BUFFER);
     }
 
@@ -66,11 +69,11 @@ class WebSocket extends WebSocketClient {
                 .map(JsonNode::asText)
                 .map(MessageInEvent::deserialize)
                 .flatMap(event -> tryDeserialize(message, eventMap.get(event)))
-                .map(Either::<MessageIn, Error>left);
+                .map(Either::<MessageIn, io.github.larscom.websocket.Error>left);
 
             final var maybeError = Optional.ofNullable(json.get("error"))
-                .flatMap(__ -> tryDeserialize(message, Error.class))
-                .map(Either::<MessageIn, Error>right);
+                .flatMap(__ -> tryDeserialize(message, io.github.larscom.websocket.Error.class))
+                .map(Either::<MessageIn, io.github.larscom.websocket.Error>right);
 
             final var either = maybeMessage.or(() -> maybeError);
             either.ifPresent(messagePublisher::onNext);
@@ -88,7 +91,7 @@ class WebSocket extends WebSocketClient {
     @Override
     public void onOpen(final ServerHandshake serverHandshake) {
         if (serverHandshake.getHttpStatus() != 101) {
-            final var error = Error.builder()
+            final var error = io.github.larscom.websocket.Error.builder()
                 .errorCode(serverHandshake.getHttpStatus())
                 .errorMessage(serverHandshake.getHttpStatusMessage())
                 .build();

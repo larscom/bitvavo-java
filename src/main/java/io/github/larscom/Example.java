@@ -1,7 +1,9 @@
 package io.github.larscom;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.larscom.util.Either;
 import io.github.larscom.websocket.*;
+import io.github.larscom.websocket.client.ReactiveWebSocketClient;
 import io.github.larscom.websocket.subscription.Subscription;
 
 import java.util.List;
