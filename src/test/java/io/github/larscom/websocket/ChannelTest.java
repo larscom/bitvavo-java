@@ -31,4 +31,20 @@ class ChannelTest {
             .isInstanceOf(Optional.class)
             .isEmpty();
     }
+
+    @Test
+    void testEquals() {
+        final var channel1 = Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR", "ETH-USD")).build();
+        final var channel2 = Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR")).build();
+
+        assertThat(channel1).isEqualTo(channel2);
+    }
+
+    @Test
+    void testHashCode() {
+        final var channel1 = Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR", "ETH-USD")).build();
+        final var channel2 = Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR")).build();
+
+        assertThat(channel1).hasSameHashCodeAs(channel2);
+    }
 }

@@ -1,4 +1,4 @@
-package io.github.larscom.util;
+package io.github.larscom.internal;
 
 public final class Either<L, R> {
     private final L left;

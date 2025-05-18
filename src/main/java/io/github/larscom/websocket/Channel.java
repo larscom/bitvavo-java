@@ -1,5 +1,6 @@
 package io.github.larscom.websocket;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,17 +17,17 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(as = ImmutableChannel.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface Channel {
+public abstract class Channel {
 
-    ChannelName getName();
+    public abstract ChannelName getName();
 
-    Set<String> getMarkets();
+    public abstract Set<String> getMarkets();
 
     @JsonProperty("interval")
-    Optional<Set<Interval>> getIntervals();
+    public abstract Optional<Set<Interval>> getIntervals();
 
     @Value.Check
-    default void check() {
+    protected void check() {
         if (getMarkets().isEmpty()) {
             throw new IllegalStateException("Cannot build Channel, some of the attributes are empty [markets]");
         }
@@ -44,10 +45,23 @@ public interface Channel {
         }
     }
 
-    static Builder builder() {
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (!(o instanceof final Channel channel)) return false;
+        return getName() == channel.getName();
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
+    }
+
+    public static Builder builder() {
         return new Builder();
     }
 
-    class Builder extends ImmutableChannel.Builder {
+    public static class Builder extends ImmutableChannel.Builder {
     }
 }
+

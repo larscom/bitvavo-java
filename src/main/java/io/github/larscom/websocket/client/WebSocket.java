@@ -3,7 +3,7 @@ package io.github.larscom.websocket.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.larscom.util.Either;
+import io.github.larscom.internal.Either;
 import io.github.larscom.websocket.*;
 import io.github.larscom.websocket.Error;
 import io.github.larscom.websocket.subscription.Subscription;
@@ -32,6 +32,7 @@ class WebSocket extends WebSocketClient {
         put(MessageInEvent.BOOK, Book.class);
         put(MessageInEvent.CANDLE, Candle.class);
         put(MessageInEvent.TRADE, Trade.class);
+        put(MessageInEvent.AUTHENTICATE, Authenticate.class);
     }};
 
     public WebSocket(final ObjectMapper objectMapper) throws InterruptedException, URISyntaxException {

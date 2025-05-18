@@ -1,23 +1,26 @@
 package io.github.larscom.websocket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.larscom.internal.Crypto;
 import io.github.larscom.internal.ObjectMapperProvider;
-import io.github.larscom.util.Either;
-import io.github.larscom.websocket.Channel;
-import io.github.larscom.websocket.ChannelName;
+import io.github.larscom.internal.Either;
+import io.github.larscom.websocket.*;
 import io.github.larscom.websocket.Error;
-import io.github.larscom.websocket.MessageIn;
 import io.github.larscom.websocket.subscription.Subscription;
 import io.github.larscom.websocket.subscription.SubscriptionValue;
 import io.github.larscom.websocket.subscription.SubscriptionWithInterval;
 import io.github.larscom.websocket.subscription.SubscriptionWithMarkets;
+import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.subjects.PublishSubject;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 
 import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -26,39 +29,65 @@ public class ReactiveWebSocketClient {
     private boolean running = false;
     private WebSocket webSocket;
 
-    private final PublishSubject<Either<MessageIn, io.github.larscom.websocket.Error>> messagePublisher;
+    private final BehaviorSubject<Either<MessageIn, Error>> messagePublisher;
 
     public ReactiveWebSocketClient() throws InterruptedException {
-        this.messagePublisher = PublishSubject.create();
-
-        startBlocking();
+        this(Optional.empty());
     }
 
-    public Flowable<Either<MessageIn, Error>> stream() {
-        return messagePublisher.toFlowable(BackpressureStrategy.BUFFER);
+    public ReactiveWebSocketClient(@NonNull final Credentials credentials) throws InterruptedException {
+        this(Optional.of(credentials));
     }
 
-    public void subscribe(final List<Channel> channels) throws JsonProcessingException {
+    private ReactiveWebSocketClient(final Optional<Credentials> credentials) throws InterruptedException {
+        this.messagePublisher = BehaviorSubject.create();
+
+        startBlocking(credentials);
+    }
+
+    public Flowable<MessageIn> stream() {
+        return data().filter(Either::isLeft).map(Either::getLeft);
+    }
+
+    public Flowable<Ticker> ticker() {
+        return mapTo(stream(), Ticker.class);
+    }
+
+    public Flowable<Ticker24h> ticker24h() {
+        return mapTo(stream(), Ticker24h.class);
+    }
+
+    public Flowable<Book> book() {
+        return mapTo(stream(), Book.class);
+    }
+
+    public Flowable<Subscription> subscription() {
+        return mapTo(stream(), Subscription.class);
+    }
+
+    public Flowable<Candle> candles() {
+        return mapTo(stream(), Candle.class);
+    }
+
+    public Flowable<Trade> trades() {
+        return mapTo(stream(), Trade.class);
+    }
+
+    public Flowable<Error> error() {
+        return data().filter(Either::isRight).map(Either::getRight);
+    }
+
+    public void subscribe(final Set<Channel> channels) throws JsonProcessingException {
         if (running) {
-            final var message = MessageOut.builder()
-                .action(Action.SUBSCRIBE)
-                .channels(channels)
-                .build();
-
-            webSocket.send(message);
+            sendSubscribe(channels);
         } else {
             throw new IllegalStateException("WebSocket thread is not running");
         }
     }
 
-    public void unsubscribe(final List<Channel> channels) throws JsonProcessingException {
+    public void unsubscribe(final Set<Channel> channels) throws JsonProcessingException {
         if (running) {
-            final var message = MessageOut.builder()
-                .action(Action.UNSUBSCRIBE)
-                .channels(channels)
-                .build();
-
-            webSocket.send(message);
+            sendUnsubscribe(channels);
         } else {
             throw new IllegalStateException("WebSocket thread is not running");
         }
@@ -69,7 +98,11 @@ public class ReactiveWebSocketClient {
         webSocket.terminate();
     }
 
-    private void startBlocking() throws InterruptedException {
+    private Flowable<Either<MessageIn, Error>> data() {
+        return messagePublisher.toFlowable(BackpressureStrategy.BUFFER);
+    }
+
+    private void startBlocking(final Optional<Credentials> credentials) throws InterruptedException {
         running = true;
 
         final var startLatch = new CountDownLatch(1);
@@ -79,17 +112,15 @@ public class ReactiveWebSocketClient {
             while (running) {
                 try {
                     webSocket = new WebSocket(ObjectMapperProvider.getObjectMapper());
-                    webSocket.setConnectionLostTimeout(5);
                     if (webSocket.connectBlocking()) {
-                        startLatch.countDown();
+                        if (credentials.isEmpty()) {
+                            startLatch.countDown();
+                        }
 
-                        if (!activeSubscriptions.isEmpty()) {
-                            final var message = MessageOut.builder()
-                                .action(Action.SUBSCRIBE)
-                                .channels(mapToChannels(activeSubscriptions))
-                                .build();
-
-                            webSocket.send(message);
+                        if (credentials.isPresent()) {
+                            sendAuthenticate(credentials.get());
+                        } else if (!activeSubscriptions.isEmpty()) {
+                            sendSubscribe(mapToChannels(activeSubscriptions));
                         }
 
                         webSocket.stream().subscribe(either -> {
@@ -97,6 +128,19 @@ public class ReactiveWebSocketClient {
                                 activeSubscriptions.clear();
                                 activeSubscriptions.putAll(subscription.getActiveSubscriptions());
                             }
+                            if (either.isLeft() && either.getLeft() instanceof final Authenticate authenticate) {
+                                if (authenticate.getAuthenticated()) {
+                                    startLatch.countDown();
+
+                                    if (!activeSubscriptions.isEmpty()) {
+                                        sendSubscribe(mapToChannels(activeSubscriptions));
+                                    }
+                                }
+                            }
+                            if (either.isRight() && credentials.isPresent()) {
+                                startLatch.countDown();
+                            }
+
                             messagePublisher.onNext(either);
                         });
 
@@ -104,7 +148,8 @@ public class ReactiveWebSocketClient {
                     } else {
                         Thread.sleep(2000);
                     }
-                } catch (final InterruptedException | URISyntaxException | JsonProcessingException e) {
+                } catch (final InterruptedException | URISyntaxException | JsonProcessingException |
+                               NoSuchAlgorithmException | InvalidKeyException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -113,7 +158,52 @@ public class ReactiveWebSocketClient {
         startLatch.await();
     }
 
-    private static List<Channel> mapToChannels(final HashMap<ChannelName, SubscriptionValue> subscriptions) {
+    private void sendSubscribe(final Set<Channel> channels) throws JsonProcessingException {
+        final var message = MessageOut.builder()
+            .action(Action.SUBSCRIBE)
+            .channels(channels)
+            .build();
+
+        webSocket.send(message);
+    }
+
+    private void sendUnsubscribe(final Set<Channel> channels) throws JsonProcessingException {
+        final var message = MessageOut.builder()
+            .action(Action.UNSUBSCRIBE)
+            .channels(channels)
+            .build();
+
+        webSocket.send(message);
+    }
+
+    private void sendAuthenticate(@NonNull final Credentials credentials) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
+        final var timestamp = Instant.now().toEpochMilli();
+        final var message = MessageOut.builder()
+            .action(Action.AUTHENTICATE)
+            .key(credentials.apiKey())
+            .signature(Crypto.createSignature(
+                "GET",
+                "/websocket",
+                Optional.empty(),
+                timestamp,
+                credentials.apiSecret()
+            ))
+            .timestamp(timestamp)
+            .build();
+
+        webSocket.send(message);
+    }
+
+    private static <T> Flowable<T> mapTo(
+        final Flowable<MessageIn> source,
+        final Class<T> clazz
+    ) {
+        return source
+            .filter(clazz::isInstance)
+            .map(clazz::cast);
+    }
+
+    private static Set<Channel> mapToChannels(final HashMap<ChannelName, SubscriptionValue> subscriptions) {
         return subscriptions
             .entrySet()
             .stream()
@@ -138,6 +228,6 @@ public class ReactiveWebSocketClient {
 
                 return channelBuilder.build();
             })
-            .toList();
+            .collect(Collectors.toSet());
     }
 }

@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.larscom.websocket.Channel;
 import org.immutables.value.Value;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Value.Immutable
 @Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
@@ -19,7 +19,7 @@ import java.util.Optional;
 interface MessageOut {
     Action getAction();
 
-    Optional<List<Channel>> getChannels();
+    Optional<Set<Channel>> getChannels();
 
     /// API key
     Optional<String> getKey();
@@ -37,6 +37,12 @@ interface MessageOut {
                 throw new IllegalStateException("Cannot build MessageOut, some of the attributes are empty [channels]");
             }
         });
+
+        if (getAction() == Action.AUTHENTICATE) {
+            if (getKey().isEmpty() || getSignature().isEmpty() || getTimestamp().isEmpty()) {
+                throw new IllegalStateException("Cannot build MessageOut, some of the required attributes are missing [key, signature, timestamp]");
+            }
+        }
     }
 
     static Builder builder() {
