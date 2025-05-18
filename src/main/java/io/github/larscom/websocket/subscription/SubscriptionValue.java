@@ -1,4 +1,4 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.subscription;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

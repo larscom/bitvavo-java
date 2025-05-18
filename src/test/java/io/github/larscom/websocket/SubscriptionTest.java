@@ -2,6 +2,7 @@ package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.internal.ObjectMapperProvider;
+import io.github.larscom.websocket.subscription.Subscription;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

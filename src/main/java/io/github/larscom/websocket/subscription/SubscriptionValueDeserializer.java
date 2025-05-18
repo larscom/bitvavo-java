@@ -1,4 +1,4 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.subscription;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.larscom.websocket.Interval;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ class SubscriptionValueDeserializer extends JsonDeserializer<SubscriptionValue> 
 
         if (node.isArray()) {
             final Set<String> markets = codec.treeToValue(node, Set.class);
-            return ImmutableSubscriptionSimpleValue.builder()
+            return ImmutableSubscriptionWithMarkets.builder()
                 .markets(markets)
                 .build();
         }
@@ -38,7 +39,7 @@ class SubscriptionValueDeserializer extends JsonDeserializer<SubscriptionValue> 
                     entry -> new HashSet<>(entry.getValue())
                 ));
 
-            return ImmutableSubscriptionIntervalValue.builder()
+            return ImmutableSubscriptionWithInterval.builder()
                 .intervalWithMarkets(intervalMap)
                 .build();
         }

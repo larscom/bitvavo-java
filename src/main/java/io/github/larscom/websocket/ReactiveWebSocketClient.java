@@ -2,6 +2,10 @@ package io.github.larscom.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.internal.ObjectMapperProvider;
+import io.github.larscom.websocket.subscription.Subscription;
+import io.github.larscom.websocket.subscription.SubscriptionWithInterval;
+import io.github.larscom.websocket.subscription.SubscriptionWithMarkets;
+import io.github.larscom.websocket.subscription.SubscriptionValue;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
@@ -70,6 +74,7 @@ public class ReactiveWebSocketClient {
             while (running) {
                 try {
                     webSocket = new WebSocket(ObjectMapperProvider.getObjectMapper());
+                    webSocket.setConnectionLostTimeout(5);
                     if (webSocket.connectBlocking()) {
                         startLatch.countDown();
 
@@ -111,11 +116,11 @@ public class ReactiveWebSocketClient {
                 final var channelBuilder = Channel.builder()
                     .name(entry.getKey());
 
-                if (entry.getValue() instanceof final SubscriptionSimpleValue value) {
+                if (entry.getValue() instanceof final SubscriptionWithMarkets value) {
                     channelBuilder.markets(value.getMarkets());
                 }
 
-                if (entry.getValue() instanceof final SubscriptionIntervalValue value) {
+                if (entry.getValue() instanceof final SubscriptionWithInterval value) {
                     final var intervals = value.getIntervalWithMarkets().keySet();
                     final var markets = value.getIntervalWithMarkets()
                         .values()

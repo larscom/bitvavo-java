@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.internal.ObjectMapperProvider;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -17,7 +17,7 @@ class ChannelTest {
 
         final var channel = Channel.builder()
             .name(ChannelName.TICKER)
-            .markets(List.of("ETH-EUR"))
+            .markets(Set.of("ETH-EUR"))
             .build();
 
         final var json = objectMapper.writeValueAsString(channel);
@@ -26,7 +26,7 @@ class ChannelTest {
         final var deserialized = objectMapper.readValue(json, Channel.class);
 
         assertThat(deserialized.getName()).isEqualTo(ChannelName.TICKER);
-        assertThat(deserialized.getMarkets()).isEqualTo(List.of("ETH-EUR"));
+        assertThat(deserialized.getMarkets()).isEqualTo(Set.of("ETH-EUR"));
         assertThat(deserialized.getIntervals())
             .isInstanceOf(Optional.class)
             .isEmpty();
