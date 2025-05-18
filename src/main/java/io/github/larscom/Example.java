@@ -16,6 +16,7 @@ class Example {
 
         final var channels = List.of(
             Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
+            Channel.builder().name(ChannelName.TICKER24H).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.TRADES).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.CANDLES).intervals(Set.of(Interval.M1)).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
@@ -44,6 +45,9 @@ class Example {
                     }
                     case final Trade trade -> {
                         System.out.println("Trade: " + trade);
+                    }
+                    case final Ticker24h ticker24h -> {
+                        System.out.println("Ticker24h: " + ticker24h);
                     }
                     default -> {
                         System.out.println("Unhandled type: " + message.getClass().getSimpleName());

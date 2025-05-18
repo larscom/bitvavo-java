@@ -28,6 +28,7 @@ class WebSocket extends WebSocketClient {
         put(MessageInEvent.SUBSCRIBED, Subscription.class);
         put(MessageInEvent.UNSUBSCRIBED, Subscription.class);
         put(MessageInEvent.TICKER, Ticker.class);
+        put(MessageInEvent.TICKER24H, Ticker24h.class);
         put(MessageInEvent.BOOK, Book.class);
         put(MessageInEvent.CANDLE, Candle.class);
         put(MessageInEvent.TRADE, Trade.class);
