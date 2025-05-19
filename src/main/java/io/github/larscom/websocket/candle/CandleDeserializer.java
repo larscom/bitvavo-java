@@ -1,4 +1,4 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.candle;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.larscom.websocket.MessageInEvent;
 
 import java.io.IOException;
 import java.math.BigDecimal;

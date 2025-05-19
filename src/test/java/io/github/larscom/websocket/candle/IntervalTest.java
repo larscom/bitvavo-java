@@ -1,4 +1,4 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.candle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

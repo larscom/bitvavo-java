@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.larscom.websocket.Interval;
+import io.github.larscom.websocket.candle.Interval;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -3,8 +3,8 @@ package io.github.larscom;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.websocket.Channel;
 import io.github.larscom.websocket.ChannelName;
-import io.github.larscom.websocket.Interval;
 import io.github.larscom.websocket.account.Credentials;
+import io.github.larscom.websocket.candle.Interval;
 import io.github.larscom.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Optional;

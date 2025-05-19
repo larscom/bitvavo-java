@@ -1,4 +1,4 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.book;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
