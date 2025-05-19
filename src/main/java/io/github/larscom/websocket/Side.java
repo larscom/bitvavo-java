@@ -1,19 +1,12 @@
 package io.github.larscom.websocket;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum Side {
-    BUY, SELL;
+    @JsonProperty("buy")
+    BUY,
 
-    @JsonValue
-    public String serialize() {
-        return name().toLowerCase();
-    }
-
-    @JsonCreator
-    public static Side deserialize(final String side) {
-        return Side.valueOf(side.toUpperCase());
-    }
+    @JsonProperty("sell")
+    SELL
 }
 
