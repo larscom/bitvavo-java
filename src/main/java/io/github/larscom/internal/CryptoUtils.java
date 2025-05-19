@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public final class Crypto {
+public final class CryptoUtils {
 
     public static String createSignature(
         final String httpMethod,
@@ -29,10 +29,9 @@ public final class Crypto {
         final var instance = "HmacSHA256";
         final var mac = Mac.getInstance(instance);
         final var secretKey = new SecretKeySpec(apiSecret.getBytes(UTF_8), instance);
+
         mac.init(secretKey);
 
-        final byte[] hmacBytes = mac.doFinal(parts.toString().getBytes(UTF_8));
-
-        return HexFormat.of().formatHex(hmacBytes);
+        return HexFormat.of().formatHex(mac.doFinal(parts.toString().getBytes(UTF_8)));
     }
 }

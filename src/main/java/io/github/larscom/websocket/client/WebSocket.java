@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.internal.Either;
 import io.github.larscom.websocket.*;
 import io.github.larscom.websocket.Error;
+import io.github.larscom.websocket.account.Authentication;
 import io.github.larscom.websocket.subscription.Subscription;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;

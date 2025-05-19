@@ -1,8 +1,9 @@
-package io.github.larscom.websocket;
+package io.github.larscom.websocket.account;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.github.larscom.websocket.MessageIn;
 import org.immutables.value.Value;
 
 @Value.Immutable

@@ -1,11 +1,13 @@
 package io.github.larscom.websocket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.internal.Crypto;
+import io.github.larscom.internal.CryptoUtils;
 import io.github.larscom.internal.Either;
 import io.github.larscom.internal.ObjectMapperProvider;
 import io.github.larscom.websocket.*;
 import io.github.larscom.websocket.Error;
+import io.github.larscom.websocket.account.Authentication;
+import io.github.larscom.websocket.account.Credentials;
 import io.github.larscom.websocket.subscription.Subscription;
 import io.github.larscom.websocket.subscription.SubscriptionValue;
 import io.github.larscom.websocket.subscription.SubscriptionWithInterval;
@@ -180,7 +182,7 @@ public class ReactiveWebSocketClient {
         final var message = MessageOut.builder()
             .action(Action.AUTHENTICATE)
             .key(credentials.apiKey())
-            .signature(Crypto.createSignature(
+            .signature(CryptoUtils.createSignature(
                 "GET",
                 "/websocket",
                 Optional.empty(),
