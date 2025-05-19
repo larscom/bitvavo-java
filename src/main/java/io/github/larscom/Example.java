@@ -3,8 +3,8 @@ package io.github.larscom;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.websocket.Channel;
 import io.github.larscom.websocket.ChannelName;
-import io.github.larscom.websocket.account.Credentials;
 import io.github.larscom.websocket.Interval;
+import io.github.larscom.websocket.account.Credentials;
 import io.github.larscom.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Optional;
@@ -21,25 +21,30 @@ class Example {
         );
 
         final ReactiveWebSocketClient client;
+
         if (credentials.isPresent()) {
             client = new ReactiveWebSocketClient(credentials.get());
+
+            client.subscribe(Set.of(Channel.builder().name(ChannelName.ACCOUNT).markets(Set.of("ETH-EUR", "BTC-EUR")).build()));
+
+            client.orders().subscribe(System.out::println);
         } else {
             client = new ReactiveWebSocketClient();
         }
 
         final var channels = Set.of(
-//            Channel.builder().name(ChannelName.ACCOUNT).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.TICKER24H).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.TRADES).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
             Channel.builder().name(ChannelName.CANDLES).intervals(Set.of(Interval.M1)).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
         );
-
         client.subscribe(channels);
 
+        // receive errors, mostly for debug purposes
         client.error().subscribe(System.out::println);
 
+        // receive data
         client.ticker().subscribe(System.out::println);
         client.ticker24h().subscribe(System.out::println);
         client.book().subscribe(System.out::println);

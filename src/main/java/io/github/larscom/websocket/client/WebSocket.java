@@ -106,6 +106,7 @@ class WebSocket extends WebSocketClient {
                 .build();
 
             incoming.onNext(Either.right(error));
+
             closeLatch.countDown();
         }
     }
@@ -123,7 +124,15 @@ class WebSocket extends WebSocketClient {
     private <T> Optional<T> maybeDeserialize(final String json, final Class<T> clazz) {
         try {
             return Optional.of(objectMapper.readValue(json, clazz));
-        } catch (final JsonProcessingException e) {
+        } catch (final JsonProcessingException | RuntimeException e) {
+            final var errorMessage = String.format("%s > incoming message: %s", e.getMessage(), json);
+            final var error = Error.builder()
+                .errorCode(0)
+                .errorMessage(errorMessage)
+                .build();
+
+            incoming.onNext(Either.right(error));
+
             return Optional.empty();
         }
     }

@@ -8,6 +8,7 @@ import io.github.larscom.websocket.*;
 import io.github.larscom.websocket.Error;
 import io.github.larscom.websocket.account.Authentication;
 import io.github.larscom.websocket.account.Credentials;
+import io.github.larscom.websocket.account.Order;
 import io.github.larscom.websocket.subscription.Subscription;
 import io.github.larscom.websocket.subscription.SubscriptionValue;
 import io.github.larscom.websocket.subscription.SubscriptionWithInterval;
@@ -75,6 +76,10 @@ public class ReactiveWebSocketClient {
 
     public Flowable<Trade> trades() {
         return mapTo(stream(), Trade.class);
+    }
+
+    public Flowable<Order> orders() {
+        return mapTo(stream(), Order.class);
     }
 
     public Flowable<Error> error() {

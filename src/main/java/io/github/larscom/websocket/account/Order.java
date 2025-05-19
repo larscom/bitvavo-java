@@ -52,8 +52,8 @@ public interface Order extends MessageIn {
     BigDecimal getOnHold();
 
     /// The currency placed on hold is the quote currency for sale orders and base
-    /// currency for buy orders.
-    BigDecimal getOnHoldCurrency();
+    /// currency for buy orders. (e.g: ETH)
+    String getOnHoldCurrency();
 
     /// Only for stop orders: The current price used in the trigger.
     /// This is based on the triggerAmount and triggerType.
@@ -94,7 +94,7 @@ public interface Order extends MessageIn {
     Optional<BigDecimal> getFilledAmountQuote();
 
     /// The currency in which the fee is paid (e.g: EUR)
-    Optional<BigDecimal> getFeeCurrency();
+    Optional<String> getFeeCurrency();
 
     /// How much fee is paid.
     Optional<BigDecimal> getFeePaid();
