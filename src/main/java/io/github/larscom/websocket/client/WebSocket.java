@@ -7,6 +7,7 @@ import io.github.larscom.internal.Either;
 import io.github.larscom.websocket.*;
 import io.github.larscom.websocket.Error;
 import io.github.larscom.websocket.account.Authentication;
+import io.github.larscom.websocket.account.Order;
 import io.github.larscom.websocket.subscription.Subscription;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
@@ -26,6 +27,7 @@ class WebSocket extends WebSocketClient {
     private final PublishSubject<Either<MessageIn, Error>> messagePublisher;
 
     private final HashMap<MessageInEvent, Class<? extends MessageIn>> eventMap = new HashMap<>() {{
+        put(MessageInEvent.AUTHENTICATE, Authentication.class);
         put(MessageInEvent.SUBSCRIBED, Subscription.class);
         put(MessageInEvent.UNSUBSCRIBED, Subscription.class);
         put(MessageInEvent.TICKER, Ticker.class);
@@ -33,7 +35,7 @@ class WebSocket extends WebSocketClient {
         put(MessageInEvent.BOOK, Book.class);
         put(MessageInEvent.CANDLE, Candle.class);
         put(MessageInEvent.TRADE, Trade.class);
-        put(MessageInEvent.AUTHENTICATE, Authentication.class);
+        put(MessageInEvent.ORDER, Order.class);
     }};
 
     public WebSocket(final ObjectMapper objectMapper) throws InterruptedException, URISyntaxException {
