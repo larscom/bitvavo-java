@@ -54,36 +54,36 @@ public class ReactiveWebSocketClient {
         startBlocking(credentials);
     }
 
-    public Flowable<MessageIn> stream() {
+    public Flowable<MessageIn> messages() {
         return outgoing.filter(Either::isLeft).map(Either::getLeft);
     }
 
     public Flowable<Ticker> ticker() {
-        return mapTo(stream(), Ticker.class);
+        return mapTo(messages(), Ticker.class);
     }
 
     public Flowable<Ticker24h> ticker24h() {
-        return mapTo(stream(), Ticker24h.class);
+        return mapTo(messages(), Ticker24h.class);
     }
 
     public Flowable<Book> book() {
-        return mapTo(stream(), Book.class);
+        return mapTo(messages(), Book.class);
     }
 
     public Flowable<Subscription> subscription() {
-        return mapTo(stream(), Subscription.class);
+        return mapTo(messages(), Subscription.class);
     }
 
     public Flowable<Candle> candles() {
-        return mapTo(stream(), Candle.class);
+        return mapTo(messages(), Candle.class);
     }
 
     public Flowable<Trade> trades() {
-        return mapTo(stream(), Trade.class);
+        return mapTo(messages(), Trade.class);
     }
 
     public Flowable<Order> orders() {
-        return mapTo(stream(), Order.class);
+        return mapTo(messages(), Order.class);
     }
 
     public Flowable<Error> error() {
