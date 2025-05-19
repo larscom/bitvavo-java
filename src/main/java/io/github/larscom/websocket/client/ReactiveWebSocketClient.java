@@ -2,8 +2,8 @@ package io.github.larscom.websocket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.internal.Crypto;
-import io.github.larscom.internal.ObjectMapperProvider;
 import io.github.larscom.internal.Either;
+import io.github.larscom.internal.ObjectMapperProvider;
 import io.github.larscom.websocket.*;
 import io.github.larscom.websocket.Error;
 import io.github.larscom.websocket.subscription.Subscription;
@@ -29,7 +29,8 @@ public class ReactiveWebSocketClient {
     private boolean running = false;
     private WebSocket webSocket;
 
-    private final BehaviorSubject<Either<MessageIn, Error>> messagePublisher;
+    private final BehaviorSubject<Either<MessageIn, Error>> incoming;
+    private final Flowable<Either<MessageIn, Error>> outgoing;
 
     public ReactiveWebSocketClient() throws InterruptedException {
         this(Optional.empty());
@@ -40,13 +41,14 @@ public class ReactiveWebSocketClient {
     }
 
     private ReactiveWebSocketClient(final Optional<Credentials> credentials) throws InterruptedException {
-        this.messagePublisher = BehaviorSubject.create();
+        this.incoming = BehaviorSubject.create();
+        this.outgoing = incoming.toFlowable(BackpressureStrategy.BUFFER);
 
         startBlocking(credentials);
     }
 
     public Flowable<MessageIn> stream() {
-        return data().filter(Either::isLeft).map(Either::getLeft);
+        return outgoing.filter(Either::isLeft).map(Either::getLeft);
     }
 
     public Flowable<Ticker> ticker() {
@@ -65,10 +67,6 @@ public class ReactiveWebSocketClient {
         return mapTo(stream(), Subscription.class);
     }
 
-    public Flowable<Authentication> authentication() {
-        return mapTo(stream(), Authentication.class);
-    }
-
     public Flowable<Candle> candles() {
         return mapTo(stream(), Candle.class);
     }
@@ -78,7 +76,7 @@ public class ReactiveWebSocketClient {
     }
 
     public Flowable<Error> error() {
-        return data().filter(Either::isRight).map(Either::getRight);
+        return outgoing.filter(Either::isRight).map(Either::getRight);
     }
 
     public void subscribe(final Set<Channel> channels) throws JsonProcessingException {
@@ -102,10 +100,6 @@ public class ReactiveWebSocketClient {
         webSocket.terminate();
     }
 
-    private Flowable<Either<MessageIn, Error>> data() {
-        return messagePublisher.toFlowable(BackpressureStrategy.BUFFER);
-    }
-
     private void startBlocking(final Optional<Credentials> credentials) throws InterruptedException {
         running = true;
 
@@ -117,14 +111,14 @@ public class ReactiveWebSocketClient {
                 try {
                     webSocket = new WebSocket(ObjectMapperProvider.getObjectMapper());
                     if (webSocket.connectBlocking()) {
-                        if (credentials.isEmpty()) {
-                            startLatch.countDown();
-                        }
-
                         if (credentials.isPresent()) {
                             sendAuthenticate(credentials.get());
-                        } else if (!activeSubscriptions.isEmpty()) {
-                            sendSubscribe(mapToChannels(activeSubscriptions));
+                        } else {
+                            startLatch.countDown();
+
+                            if (!activeSubscriptions.isEmpty()) {
+                                sendSubscribe(mapToChannels(activeSubscriptions));
+                            }
                         }
 
                         webSocket.stream().subscribe(either -> {
@@ -146,7 +140,7 @@ public class ReactiveWebSocketClient {
                                 startLatch.countDown();
                             }
 
-                            messagePublisher.onNext(either);
+                            incoming.onNext(either);
                         });
 
                         webSocket.blockUntilClosed();
