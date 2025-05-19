@@ -24,7 +24,8 @@ import java.util.concurrent.CountDownLatch;
 class WebSocket extends WebSocketClient {
     private final ObjectMapper objectMapper;
     private final CountDownLatch closeLatch;
-    private final PublishSubject<Either<MessageIn, Error>> messagePublisher;
+    private final PublishSubject<Either<MessageIn, Error>> incoming;
+    private final Flowable<Either<MessageIn, Error>> outgoing;
 
     private final HashMap<MessageInEvent, Class<? extends MessageIn>> eventMap = new HashMap<>() {{
         put(MessageInEvent.AUTHENTICATE, Authentication.class);
@@ -42,11 +43,12 @@ class WebSocket extends WebSocketClient {
         super(new URI("wss://ws.bitvavo.com/v2"));
         this.objectMapper = objectMapper;
         this.closeLatch = new CountDownLatch(1);
-        this.messagePublisher = PublishSubject.create();
+        this.incoming = PublishSubject.create();
+        this.outgoing = incoming.toFlowable(BackpressureStrategy.BUFFER);
     }
 
     public Flowable<Either<MessageIn, Error>> stream() {
-        return messagePublisher.toFlowable(BackpressureStrategy.BUFFER);
+        return outgoing;
     }
 
     public void send(final MessageOut message) throws JsonProcessingException {
@@ -83,7 +85,7 @@ class WebSocket extends WebSocketClient {
                 .map(Either::<MessageIn, Error>right);
 
             final var either = maybeMessage.or(() -> maybeError);
-            either.ifPresent(messagePublisher::onNext);
+            either.ifPresent(incoming::onNext);
 
         } catch (final JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -103,7 +105,7 @@ class WebSocket extends WebSocketClient {
                 .errorMessage(serverHandshake.getHttpStatusMessage())
                 .build();
 
-            messagePublisher.onNext(Either.right(error));
+            incoming.onNext(Either.right(error));
             closeLatch.countDown();
         }
     }
@@ -115,7 +117,7 @@ class WebSocket extends WebSocketClient {
             .errorMessage(e.getMessage())
             .build();
 
-        messagePublisher.onNext(Either.right(error));
+        incoming.onNext(Either.right(error));
     }
 
     private <T> Optional<T> maybeDeserialize(final String json, final Class<T> clazz) {
