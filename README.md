@@ -53,8 +53,8 @@ class Main {
     public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
         final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
 
-        final Channel channel = Channel.builder().
-            name(ChannelName.TICKER)
+        final Channel channel = Channel.builder()
+            .name(ChannelName.TICKER)
             .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
             .build();
 
@@ -97,8 +97,8 @@ class Main {
         // pass the credentials
         final ReactiveWebSocketClient client = new ReactiveWebSocketClient(credentials);
 
-        final Channel channel = Channel.builder().
-            name(ChannelName.ACCOUNT)
+        final Channel channel = Channel.builder()
+            .name(ChannelName.ACCOUNT)
             .markets(Set.of("ETH-EUR", "BTC-EUR"))
             .build();
 
@@ -137,8 +137,8 @@ class Main {
         // pass the proxy
         final ReactiveWebSocketClient client = new ReactiveWebSocketClient(proxy);
 
-        final Channel channel = Channel.builder().
-            name(ChannelName.TICKER)
+        final Channel channel = Channel.builder()
+            .name(ChannelName.TICKER)
             .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
             .build();
 
