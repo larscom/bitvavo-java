@@ -23,6 +23,9 @@ public interface Order extends MessageIn {
     /// The order ID
     UUID getOrderId();
 
+    /// The personalized UUID you assigned to an order. This is only returned if you specified clientOrderId in the request.
+    Optional<UUID> getClientOrderId();
+
     /// Created timestamp in unix milliseconds.
     long created();
 
@@ -74,7 +77,9 @@ public interface Order extends MessageIn {
     /// FOK orders will fill against existing orders in its entirety, or will be canceled (if the entire order cannot be filled).
     Optional<TimeInForce> getTimeInForce();
 
-    /// Post only?
+    /// Only for limit orders: When postOnly is set to true, the order will not fill against existing orders.
+    /// This is useful if you want to ensure you pay the maker fee.
+    /// If the order would fill against existing orders, the entire order will be canceled.
     boolean getPostOnly();
 
     /// Self trading is not allowed on Bitvavo. Multiple options are available to prevent this from happening.
@@ -86,16 +91,4 @@ public interface Order extends MessageIn {
 
     /// Whether this order is visible on the order book.
     boolean getVisible();
-
-    /// How much of this order is filled.
-    Optional<BigDecimal> getFilledAmount();
-
-    /// How much of this order is filled in quote currency.
-    Optional<BigDecimal> getFilledAmountQuote();
-
-    /// The currency in which the fee is paid (e.g: EUR)
-    Optional<String> getFeeCurrency();
-
-    /// How much fee is paid.
-    Optional<BigDecimal> getFeePaid();
 }

@@ -28,6 +28,7 @@ class Example {
             client.subscribe(Set.of(Channel.builder().name(ChannelName.ACCOUNT).markets(Set.of("ETH-EUR", "BTC-EUR")).build()));
 
             client.orders().subscribe(System.out::println);
+            client.fills().subscribe(System.out::println);
         } else {
             client = new ReactiveWebSocketClient();
         }
@@ -42,13 +43,13 @@ class Example {
         client.subscribe(channels);
 
         // receive errors, mostly for debug purposes
-        client.error().subscribe(System.out::println);
+        client.errors().subscribe(System.out::println);
 
         // receive data
-        client.ticker().subscribe(System.out::println);
-        client.ticker24h().subscribe(System.out::println);
-        client.book().subscribe(System.out::println);
-        client.subscription().subscribe(System.out::println);
+        client.tickers().subscribe(System.out::println);
+        client.tickers24h().subscribe(System.out::println);
+        client.books().subscribe(System.out::println);
+        client.subscriptions().subscribe(System.out::println);
         client.candles().subscribe(System.out::println);
         client.trades().subscribe(System.out::println);
 

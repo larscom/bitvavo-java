@@ -42,9 +42,5 @@ class OrderTest {
         assertThat(deserialized.getTriggerAmount()).isEmpty();
         assertThat(deserialized.getTriggerType()).isEmpty();
         assertThat(deserialized.getTriggerReference()).isEmpty();
-        assertThat(deserialized.getFilledAmount()).isEmpty();
-        assertThat(deserialized.getFilledAmountQuote()).isEmpty();
-        assertThat(deserialized.getFeeCurrency()).isEmpty();
-        assertThat(deserialized.getFeePaid()).isEmpty();
     }
 }

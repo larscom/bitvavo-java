@@ -9,6 +9,7 @@ import io.github.larscom.websocket.MessageIn;
 import io.github.larscom.websocket.MessageInEvent;
 import io.github.larscom.websocket.Trade;
 import io.github.larscom.websocket.account.Authentication;
+import io.github.larscom.websocket.account.Fill;
 import io.github.larscom.websocket.account.Order;
 import io.github.larscom.websocket.book.Book;
 import io.github.larscom.websocket.candle.Candle;
@@ -43,6 +44,7 @@ class WebSocket extends WebSocketClient {
         put(MessageInEvent.CANDLE, Candle.class);
         put(MessageInEvent.TRADE, Trade.class);
         put(MessageInEvent.ORDER, Order.class);
+        put(MessageInEvent.FILL, Fill.class);
     }};
 
     public WebSocket(final ObjectMapper objectMapper) throws InterruptedException, URISyntaxException {

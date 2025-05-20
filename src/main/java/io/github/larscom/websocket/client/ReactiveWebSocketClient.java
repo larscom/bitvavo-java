@@ -8,6 +8,7 @@ import io.github.larscom.websocket.*;
 import io.github.larscom.websocket.Error;
 import io.github.larscom.websocket.account.Authentication;
 import io.github.larscom.websocket.account.Credentials;
+import io.github.larscom.websocket.account.Fill;
 import io.github.larscom.websocket.account.Order;
 import io.github.larscom.websocket.book.Book;
 import io.github.larscom.websocket.candle.Candle;
@@ -58,19 +59,19 @@ public class ReactiveWebSocketClient {
         return outgoing.filter(Either::isLeft).map(Either::getLeft);
     }
 
-    public Flowable<Ticker> ticker() {
+    public Flowable<Ticker> tickers() {
         return mapTo(messages(), Ticker.class);
     }
 
-    public Flowable<Ticker24h> ticker24h() {
+    public Flowable<Ticker24h> tickers24h() {
         return mapTo(messages(), Ticker24h.class);
     }
 
-    public Flowable<Book> book() {
+    public Flowable<Book> books() {
         return mapTo(messages(), Book.class);
     }
 
-    public Flowable<Subscription> subscription() {
+    public Flowable<Subscription> subscriptions() {
         return mapTo(messages(), Subscription.class);
     }
 
@@ -86,7 +87,11 @@ public class ReactiveWebSocketClient {
         return mapTo(messages(), Order.class);
     }
 
-    public Flowable<Error> error() {
+    public Flowable<Fill> fills() {
+        return mapTo(messages(), Fill.class);
+    }
+
+    public Flowable<Error> errors() {
         return outgoing.filter(Either::isRight).map(Either::getRight);
     }
 
