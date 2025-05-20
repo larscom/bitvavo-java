@@ -32,12 +32,13 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ReactiveWebSocketClient {
-    private boolean running = false;
-    private WebSocket webSocket;
+    private volatile WebSocket webSocket;
 
+    private final AtomicBoolean running;
     private final BehaviorSubject<Either<MessageIn, Error>> incoming;
     private final Flowable<Either<MessageIn, Error>> outgoing;
 
@@ -60,6 +61,7 @@ public class ReactiveWebSocketClient {
     private ReactiveWebSocketClient(final Optional<Credentials> credentials, final Optional<Proxy> proxy) throws InterruptedException {
         this.incoming = BehaviorSubject.create();
         this.outgoing = incoming.toFlowable(BackpressureStrategy.BUFFER);
+        this.running = new AtomicBoolean(false);
 
         startBlocking(credentials, proxy);
     }
@@ -105,7 +107,7 @@ public class ReactiveWebSocketClient {
     }
 
     public void subscribe(final Set<Channel> channels) throws JsonProcessingException {
-        if (running) {
+        if (running.get()) {
             sendSubscribe(channels);
         } else {
             throw new IllegalStateException("WebSocket thread is not running");
@@ -113,7 +115,7 @@ public class ReactiveWebSocketClient {
     }
 
     public void unsubscribe(final Set<Channel> channels) throws JsonProcessingException {
-        if (running) {
+        if (running.get()) {
             sendUnsubscribe(channels);
         } else {
             throw new IllegalStateException("WebSocket thread is not running");
@@ -121,59 +123,25 @@ public class ReactiveWebSocketClient {
     }
 
     public void close() {
-        running = false;
+        running.set(false);
         webSocket.terminate();
     }
 
     private void startBlocking(final Optional<Credentials> credentials, final Optional<Proxy> proxy) throws InterruptedException {
-        running = true;
+        running.set(true);
 
         final var startLatch = new CountDownLatch(1);
-        final var activeSubscriptions = new HashMap<ChannelName, SubscriptionValue>();
 
         Thread.startVirtualThread(() -> {
-            while (running) {
+            final var activeSubscriptions = new HashMap<ChannelName, SubscriptionValue>();
+
+            while (running.get()) {
                 try {
                     webSocket = new WebSocket(ObjectMapperProvider.getObjectMapper());
+
                     proxy.ifPresent(webSocket::setProxy);
 
-                    if (webSocket.connectBlocking()) {
-                        if (credentials.isPresent()) {
-                            sendAuthenticate(credentials.get());
-                        } else {
-                            startLatch.countDown();
-
-                            if (!activeSubscriptions.isEmpty()) {
-                                sendSubscribe(mapToChannels(activeSubscriptions));
-                            }
-                        }
-
-                        webSocket.stream().subscribe(either -> {
-                            if (either.isLeft()) {
-                                if (either.getLeft() instanceof final Subscription subscription) {
-                                    activeSubscriptions.clear();
-                                    activeSubscriptions.putAll(subscription.getActiveSubscriptions());
-                                }
-                                if (either.getLeft() instanceof final Authentication authentication) {
-                                    startLatch.countDown();
-
-                                    if (authentication.getAuthenticated() && !activeSubscriptions.isEmpty()) {
-                                        sendSubscribe(mapToChannels(activeSubscriptions));
-                                    }
-                                }
-                            }
-
-                            if (either.isRight() && credentials.isPresent()) {
-                                startLatch.countDown();
-                            }
-
-                            incoming.onNext(either);
-                        });
-
-                        webSocket.blockUntilClosed();
-                    } else {
-                        Thread.sleep(2000);
-                    }
+                    connectAndReceive(webSocket, credentials, startLatch, activeSubscriptions);
                 } catch (final InterruptedException | URISyntaxException | JsonProcessingException |
                                NoSuchAlgorithmException | InvalidKeyException e) {
                     throw new RuntimeException(e);
@@ -182,6 +150,50 @@ public class ReactiveWebSocketClient {
         });
 
         startLatch.await();
+    }
+
+    private void connectAndReceive(
+        final WebSocket webSocket,
+        final Optional<Credentials> credentials,
+        final CountDownLatch startLatch,
+        final HashMap<ChannelName, SubscriptionValue> activeSubscriptions) throws InterruptedException, NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
+        if (webSocket.connectBlocking()) {
+            if (credentials.isPresent()) {
+                sendAuthenticate(credentials.get());
+            } else {
+                startLatch.countDown();
+
+                if (!activeSubscriptions.isEmpty()) {
+                    sendSubscribe(mapToChannels(activeSubscriptions));
+                }
+            }
+
+            webSocket.stream().subscribe(either -> {
+                if (either.isLeft()) {
+                    if (either.getLeft() instanceof final Subscription subscription) {
+                        activeSubscriptions.clear();
+                        activeSubscriptions.putAll(subscription.getActiveSubscriptions());
+                    }
+                    if (either.getLeft() instanceof final Authentication authentication) {
+                        startLatch.countDown();
+
+                        if (authentication.getAuthenticated() && !activeSubscriptions.isEmpty()) {
+                            sendSubscribe(mapToChannels(activeSubscriptions));
+                        }
+                    }
+                }
+
+                if (either.isRight() && credentials.isPresent()) {
+                    startLatch.countDown();
+                }
+
+                incoming.onNext(either);
+            });
+
+            webSocket.blockUntilClosed();
+        } else {
+            Thread.sleep(2000);
+        }
     }
 
     private void sendSubscribe(final Set<Channel> channels) throws JsonProcessingException {
