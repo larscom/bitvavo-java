@@ -115,6 +115,47 @@ class Main {
 }
 ```
 
+### Proxy
+
+If you need a proxy you can simply pass a `java.net.Proxy` object to the `ReactiveWebSocketClient` constructor.
+
+```java
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.larscom.websocket.Channel;
+import io.github.larscom.websocket.ChannelName;
+import io.github.larscom.websocket.client.ReactiveWebSocketClient;
+
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.Set;
+
+class Main {
+
+    public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+        final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.example.com", 8080));
+        
+        // pass the proxy
+        final ReactiveWebSocketClient client = new ReactiveWebSocketClient(proxy);
+
+        final Channel channel = Channel.builder().
+            name(ChannelName.TICKER)
+            .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
+            .build();
+
+        client.subscribe(Set.of(channel));
+
+        // receive errors, mostly for debug purposes
+        client.errors().subscribe(System.out::println);
+
+        // receive data
+        client.tickers().subscribe(System.out::println);
+
+        // keep this thread alive
+        Thread.currentThread().join();
+    }
+}
+```
+
 ### Single Stream
 
 If you want to handle multiple events in a single stream you can use `instanceof`
@@ -136,21 +177,21 @@ class Main {
         final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
 
         final Set<Channel> channels = Set.of(
-              Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR")).build(),
-              Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR")).build()
+            Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR")).build(),
+            Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR")).build()
         );
 
         client.subscribe(channels);
 
         // single stream to handle all message types.
         client.messages().subscribe(messageIn -> {
-          if (messageIn instanceof final Ticker ticker) {
-            System.out.println("Ticker: " + ticker);
-          }
-  
-          if (messageIn instanceof final Book book) {
-            System.out.println("Book: " + book);
-          }
+            if (messageIn instanceof final Ticker ticker) {
+                System.out.println("Ticker: " + ticker);
+            }
+
+            if (messageIn instanceof final Book book) {
+                System.out.println("Book: " + book);
+            }
         });
 
         // keep this thread alive
@@ -158,7 +199,6 @@ class Main {
     }
 }
 ```
-
 
 ### Running The Example
 

@@ -23,6 +23,7 @@ import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
 
+import java.net.Proxy;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -41,18 +42,26 @@ public class ReactiveWebSocketClient {
     private final Flowable<Either<MessageIn, Error>> outgoing;
 
     public ReactiveWebSocketClient() throws InterruptedException {
-        this(Optional.empty());
+        this(Optional.empty(), Optional.empty());
+    }
+
+    public ReactiveWebSocketClient(@NonNull final Proxy proxy) throws InterruptedException {
+        this(Optional.empty(), Optional.of(proxy));
     }
 
     public ReactiveWebSocketClient(@NonNull final Credentials credentials) throws InterruptedException {
-        this(Optional.of(credentials));
+        this(Optional.of(credentials), Optional.empty());
     }
 
-    private ReactiveWebSocketClient(final Optional<Credentials> credentials) throws InterruptedException {
+    public ReactiveWebSocketClient(@NonNull final Credentials credentials, @NonNull final Proxy proxy) throws InterruptedException {
+        this(Optional.of(credentials), Optional.of(proxy));
+    }
+
+    private ReactiveWebSocketClient(final Optional<Credentials> credentials, final Optional<Proxy> proxy) throws InterruptedException {
         this.incoming = BehaviorSubject.create();
         this.outgoing = incoming.toFlowable(BackpressureStrategy.BUFFER);
 
-        startBlocking(credentials);
+        startBlocking(credentials, proxy);
     }
 
     public Flowable<MessageIn> messages() {
@@ -116,7 +125,7 @@ public class ReactiveWebSocketClient {
         webSocket.terminate();
     }
 
-    private void startBlocking(final Optional<Credentials> credentials) throws InterruptedException {
+    private void startBlocking(final Optional<Credentials> credentials, final Optional<Proxy> proxy) throws InterruptedException {
         running = true;
 
         final var startLatch = new CountDownLatch(1);
@@ -126,6 +135,8 @@ public class ReactiveWebSocketClient {
             while (running) {
                 try {
                     webSocket = new WebSocket(ObjectMapperProvider.getObjectMapper());
+                    proxy.ifPresent(webSocket::setProxy);
+
                     if (webSocket.connectBlocking()) {
                         if (credentials.isPresent()) {
                             sendAuthenticate(credentials.get());
