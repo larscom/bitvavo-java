@@ -16,8 +16,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
 public class ReactiveApiClient {
-    private final static String BASE_URL = "https://api.bitvavo.com/v2";
-    private final static ObjectMapper objectMapper = ObjectMapperProvider.getObjectMapper();
+    private static final String BASE_URL = "https://api.bitvavo.com/v2";
+    private static final ObjectMapper objectMapper = ObjectMapperProvider.getObjectMapper();
 
     private final HttpClient httpClient;
 
