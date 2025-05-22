@@ -32,13 +32,12 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ReactiveWebSocketClient {
     private volatile WebSocket webSocket;
+    private volatile boolean running;
 
-    private final AtomicBoolean running;
     private final BehaviorSubject<Either<MessageIn, Error>> incoming;
     private final Flowable<Either<MessageIn, Error>> outgoing;
 
@@ -61,7 +60,6 @@ public class ReactiveWebSocketClient {
     private ReactiveWebSocketClient(final Optional<Credentials> credentials, final Optional<Proxy> proxy) throws InterruptedException {
         this.incoming = BehaviorSubject.create();
         this.outgoing = incoming.toFlowable(BackpressureStrategy.BUFFER);
-        this.running = new AtomicBoolean(false);
 
         startBlocking(credentials, proxy);
     }
@@ -107,7 +105,7 @@ public class ReactiveWebSocketClient {
     }
 
     public void subscribe(final Set<Channel> channels) throws JsonProcessingException {
-        if (running.get()) {
+        if (running) {
             sendSubscribe(channels);
         } else {
             throw new IllegalStateException("WebSocket thread is not running");
@@ -115,7 +113,7 @@ public class ReactiveWebSocketClient {
     }
 
     public void unsubscribe(final Set<Channel> channels) throws JsonProcessingException {
-        if (running.get()) {
+        if (running) {
             sendUnsubscribe(channels);
         } else {
             throw new IllegalStateException("WebSocket thread is not running");
@@ -123,19 +121,19 @@ public class ReactiveWebSocketClient {
     }
 
     public void close() {
-        running.set(false);
+        running = false;
         webSocket.terminate();
     }
 
     private void startBlocking(final Optional<Credentials> credentials, final Optional<Proxy> proxy) throws InterruptedException {
-        running.set(true);
+        running = true;
 
         final var startLatch = new CountDownLatch(1);
 
         Thread.startVirtualThread(() -> {
             final var activeSubscriptions = new HashMap<ChannelName, SubscriptionValue>();
 
-            while (running.get()) {
+            while (running) {
                 try {
                     webSocket = new WebSocket(ObjectMapperProvider.getObjectMapper());
 
