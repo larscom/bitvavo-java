@@ -5,15 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.bitvavo.http.market.Market;
 import io.github.larscom.bitvavo.internal.JsonBodyHandler;
 import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
+import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
@@ -23,12 +27,18 @@ public class ReactiveApiClient {
 
     private final HttpClient httpClient;
 
+    public ReactiveApiClient(@NonNull final InetSocketAddress proxyAddress) {
+        this(Optional.of(proxyAddress));
+    }
+
     public ReactiveApiClient() {
-        httpClient = HttpClient
-            .newBuilder()
-            .executor(Executors.newVirtualThreadPerTaskExecutor())
-            .version(HttpClient.Version.HTTP_2)
-            .build();
+        this(Optional.empty());
+    }
+
+    private ReactiveApiClient(final Optional<InetSocketAddress> proxyAddress) {
+        final var builder = HttpClient.newBuilder().executor(Executors.newVirtualThreadPerTaskExecutor());
+        proxyAddress.map(ProxySelector::of).ifPresent(builder::proxy);
+        httpClient = builder.build();
     }
 
     public Single<Long> getTime() {
