@@ -127,7 +127,6 @@ public class ReactiveApiClient {
     }
 
     private void updateRateLimit(final HttpHeaders headers) {
-        System.out.println("Updating ratelimit: " + headers);
         final var limit = headers.firstValue(HEADER_RATE_LIMIT_LIMIT).map(Integer::parseInt);
         final var remaining = headers.firstValue(HEADER_RATE_LIMIT_REMAINING).map(Integer::parseInt);
         final var resetAt = headers.firstValue(HEADER_RATE_LIMIT_RESET_AT).map(Long::parseLong);
