@@ -1,10 +1,11 @@
-package io.github.larscom.http;
+package io.github.larscom.bitvavo.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.larscom.internal.JsonBodyHandler;
-import io.github.larscom.internal.ObjectMapperProvider;
+import io.github.larscom.bitvavo.internal.JsonBodyHandler;
+import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,10 +37,10 @@ public class ReactiveApiClient {
                 .GET()
                 .build();
 
-            return Single.fromFuture(httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body))
+            return withIOScheduler(Single.fromFuture(httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(HttpResponse::body))
                 .map(objectMapper::readTree)
-                .map(node -> node.get("time").asLong());
-
+                .map(node -> node.get("time").asLong()));
         } catch (final URISyntaxException e) {
             return Single.error(e);
         }
@@ -52,11 +53,14 @@ public class ReactiveApiClient {
                 .GET()
                 .build();
 
-            return Single.fromFuture(sendAsync(request, new TypeReference<>() {
-            }));
+            return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
         } catch (final URISyntaxException e) {
             return Single.error(e);
         }
+    }
+
+    private static <T> Single<T> withIOScheduler(final Single<T> single) {
+        return single.subscribeOn(Schedulers.io());
     }
 
     private <T> CompletableFuture<T> sendAsync(final HttpRequest request, final Class<T> type) {

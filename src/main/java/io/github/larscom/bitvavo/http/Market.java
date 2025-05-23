@@ -1,4 +1,4 @@
-package io.github.larscom.http;
+package io.github.larscom.bitvavo.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
