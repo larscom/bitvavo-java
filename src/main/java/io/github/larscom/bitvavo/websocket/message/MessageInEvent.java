@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.websocket;
+package io.github.larscom.bitvavo.websocket.message;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

@@ -1,8 +1,8 @@
 package io.github.larscom.bitvavo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.bitvavo.websocket.Channel;
-import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.channel.Channel;
+import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
 import io.github.larscom.bitvavo.websocket.candle.Interval;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;

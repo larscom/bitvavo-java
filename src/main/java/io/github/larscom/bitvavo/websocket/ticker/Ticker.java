@@ -3,7 +3,7 @@ package io.github.larscom.bitvavo.websocket.ticker;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.github.larscom.bitvavo.websocket.MessageIn;
+import io.github.larscom.bitvavo.websocket.message.MessageIn;
 import org.immutables.value.Value;
 
 import java.math.BigDecimal;

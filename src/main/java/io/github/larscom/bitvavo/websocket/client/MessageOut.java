@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.github.larscom.bitvavo.websocket.Channel;
+import io.github.larscom.bitvavo.websocket.channel.Channel;
 import org.immutables.value.Value;
 
 import java.util.Optional;

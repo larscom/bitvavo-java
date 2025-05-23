@@ -42,34 +42,33 @@ Here's a quick example to get you started:
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.bitvavo.websocket.Channel;
-import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Set;
 
 class Main {
 
-    public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
-        final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
+  public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+    final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
 
-        final Channel channel = Channel.builder()
-            .name(ChannelName.TICKER)
+    final io.github.larscom.bitvavo.websocket.channel.Channel channel = Channel.builder()
+            .name(io.github.larscom.bitvavo.websocket.channel.ChannelName.TICKER)
             .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
             .build();
 
-        // you can call this function mutliple times to subscribe to more markets at a later moment.
-        client.subscribe(Set.of(channel));
+    // you can call this function mutliple times to subscribe to more markets at a later moment.
+    client.subscribe(Set.of(channel));
 
-        // receive errors, mostly for debug purposes
-        client.errors().subscribe(System.out::println);
+    // receive errors, mostly for debug purposes
+    client.errors().subscribe(System.out::println);
 
-        // receive data
-        client.tickers().subscribe(System.out::println);
+    // receive data
+    client.tickers().subscribe(System.out::println);
 
-        // keep this thread alive
-        Thread.currentThread().join();
-    }
+    // keep this thread alive
+    Thread.currentThread().join();
+  }
 }
 ```
 
@@ -82,8 +81,7 @@ in [Bitvavo](https://account.bitvavo.com/user/api)
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.bitvavo.websocket.Channel;
-import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
@@ -91,27 +89,27 @@ import java.util.Set;
 
 class Main {
 
-    public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
-        final Credentials credentials = new Credentials("MY_API_KEY", "MY_API_SECRET");
+  public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+    final Credentials credentials = new Credentials("MY_API_KEY", "MY_API_SECRET");
 
-        // pass the credentials
-        final ReactiveWebSocketClient client = new ReactiveWebSocketClient(credentials);
+    // pass the credentials
+    final ReactiveWebSocketClient client = new ReactiveWebSocketClient(credentials);
 
-        final Channel channel = Channel.builder()
+    final io.github.larscom.bitvavo.websocket.channel.Channel channel = io.github.larscom.bitvavo.websocket.channel.Channel.builder()
             .name(ChannelName.ACCOUNT)
             .markets(Set.of("ETH-EUR", "BTC-EUR"))
             .build();
 
-        client.subscribe(Set.of(channel));
+    client.subscribe(Set.of(channel));
 
-        // receive errors, mostly for debug purposes
-        client.errors().subscribe(System.out::println);
+    // receive errors, mostly for debug purposes
+    client.errors().subscribe(System.out::println);
 
-        // receive data
-        client.orders().subscribe(System.out::println);
+    // receive data
+    client.orders().subscribe(System.out::println);
 
-        Thread.currentThread().join();
-    }
+    Thread.currentThread().join();
+  }
 }
 ```
 
@@ -121,8 +119,7 @@ If you need a proxy you can simply pass a `java.net.Proxy` object to the `Reacti
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.bitvavo.websocket.Channel;
-import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.net.InetSocketAddress;
@@ -131,28 +128,28 @@ import java.util.Set;
 
 class Main {
 
-    public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
-        final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.example.com", 8080));
+  public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+    final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.example.com", 8080));
 
-        // pass the proxy
-        final ReactiveWebSocketClient client = new ReactiveWebSocketClient(proxy);
+    // pass the proxy
+    final ReactiveWebSocketClient client = new ReactiveWebSocketClient(proxy);
 
-        final Channel channel = Channel.builder()
-            .name(ChannelName.TICKER)
+    final Channel channel = Channel.builder()
+            .name(io.github.larscom.bitvavo.websocket.channel.ChannelName.TICKER)
             .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
             .build();
 
-        client.subscribe(Set.of(channel));
+    client.subscribe(Set.of(channel));
 
-        // receive errors, mostly for debug purposes
-        client.errors().subscribe(System.out::println);
+    // receive errors, mostly for debug purposes
+    client.errors().subscribe(System.out::println);
 
-        // receive data
-        client.tickers().subscribe(System.out::println);
+    // receive data
+    client.tickers().subscribe(System.out::println);
 
-        // keep this thread alive
-        Thread.currentThread().join();
-    }
+    // keep this thread alive
+    Thread.currentThread().join();
+  }
 }
 ```
 
@@ -162,8 +159,7 @@ If you want to handle multiple events in a single stream you can use `instanceof
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.bitvavo.websocket.Channel;
-import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.book.Book;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 import io.github.larscom.bitvavo.websocket.ticker.Ticker;
@@ -172,30 +168,30 @@ import java.util.Set;
 
 class Main {
 
-    public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
-        final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
+  public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+    final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
 
-        final Set<Channel> channels = Set.of(
-            Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR")).build(),
-            Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR")).build()
-        );
+    final Set<io.github.larscom.bitvavo.websocket.channel.Channel> channels = Set.of(
+            io.github.larscom.bitvavo.websocket.channel.Channel.builder().name(io.github.larscom.bitvavo.websocket.channel.ChannelName.TICKER).markets(Set.of("ETH-EUR")).build(),
+            io.github.larscom.bitvavo.websocket.channel.Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR")).build()
+    );
 
-        client.subscribe(channels);
+    client.subscribe(channels);
 
-        // single stream to handle all message types.
-        client.messages().subscribe(messageIn -> {
-            if (messageIn instanceof final Ticker ticker) {
-                System.out.println("Ticker: " + ticker);
-            }
+    // single stream to handle all message types.
+    client.messages().subscribe(messageIn -> {
+      if (messageIn instanceof final Ticker ticker) {
+        System.out.println("Ticker: " + ticker);
+      }
 
-            if (messageIn instanceof final Book book) {
-                System.out.println("Book: " + book);
-            }
-        });
+      if (messageIn instanceof final Book book) {
+        System.out.println("Book: " + book);
+      }
+    });
 
-        // keep this thread alive
-        Thread.currentThread().join();
-    }
+    // keep this thread alive
+    Thread.currentThread().join();
+  }
 }
 ```
 
