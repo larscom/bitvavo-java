@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.github.larscom.bitvavo.websocket.ChannelName;
-import io.github.larscom.bitvavo.websocket.MessageIn;
+import io.github.larscom.bitvavo.websocket.channel.ChannelName;
+import io.github.larscom.bitvavo.websocket.message.MessageIn;
 import org.immutables.value.Value;
 
 import java.util.HashMap;

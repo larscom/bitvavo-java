@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.websocket;
+package io.github.larscom.bitvavo.websocket.channel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
