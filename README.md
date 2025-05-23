@@ -43,6 +43,7 @@ Here's a quick example to get you started:
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
+import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Set;
@@ -52,8 +53,8 @@ class Main {
   public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
     final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
 
-    final io.github.larscom.bitvavo.websocket.channel.Channel channel = Channel.builder()
-            .name(io.github.larscom.bitvavo.websocket.channel.ChannelName.TICKER)
+    final Channel channel = Channel.builder()
+            .name(ChannelName.TICKER)
             .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
             .build();
 
@@ -81,6 +82,7 @@ in [Bitvavo](https://account.bitvavo.com/user/api)
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
@@ -95,7 +97,7 @@ class Main {
     // pass the credentials
     final ReactiveWebSocketClient client = new ReactiveWebSocketClient(credentials);
 
-    final io.github.larscom.bitvavo.websocket.channel.Channel channel = io.github.larscom.bitvavo.websocket.channel.Channel.builder()
+    final Channel channel = Channel.builder()
             .name(ChannelName.ACCOUNT)
             .markets(Set.of("ETH-EUR", "BTC-EUR"))
             .build();
@@ -120,6 +122,7 @@ If you need a proxy you can simply pass a `java.net.Proxy` object to the `Reacti
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
+import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.net.InetSocketAddress;
@@ -135,7 +138,7 @@ class Main {
     final ReactiveWebSocketClient client = new ReactiveWebSocketClient(proxy);
 
     final Channel channel = Channel.builder()
-            .name(io.github.larscom.bitvavo.websocket.channel.ChannelName.TICKER)
+            .name(ChannelName.TICKER)
             .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
             .build();
 
@@ -160,6 +163,7 @@ If you want to handle multiple events in a single stream you can use `instanceof
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
+import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.book.Book;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 import io.github.larscom.bitvavo.websocket.ticker.Ticker;
@@ -171,9 +175,9 @@ class Main {
   public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
     final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
 
-    final Set<io.github.larscom.bitvavo.websocket.channel.Channel> channels = Set.of(
-            io.github.larscom.bitvavo.websocket.channel.Channel.builder().name(io.github.larscom.bitvavo.websocket.channel.ChannelName.TICKER).markets(Set.of("ETH-EUR")).build(),
-            io.github.larscom.bitvavo.websocket.channel.Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR")).build()
+    final Set<Channel> channels = Set.of(
+            Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR")).build(),
+            Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR")).build()
     );
 
     client.subscribe(channels);
