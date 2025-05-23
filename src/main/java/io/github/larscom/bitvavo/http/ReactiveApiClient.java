@@ -2,6 +2,7 @@ package io.github.larscom.bitvavo.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.larscom.bitvavo.http.market.Market;
 import io.github.larscom.bitvavo.internal.JsonBodyHandler;
 import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
 import io.reactivex.rxjava3.core.Single;
@@ -31,31 +32,31 @@ public class ReactiveApiClient {
     }
 
     public Single<Long> getTime() {
-        try {
-            final var request = HttpRequest.newBuilder()
-                .uri(new URI(String.format("%s/%s", BASE_URL, "time")))
-                .GET()
-                .build();
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("time"))
+            .GET()
+            .build();
 
-            return withIOScheduler(Single.fromFuture(httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(HttpResponse::body))
-                .map(objectMapper::readTree)
-                .map(node -> node.get("time").asLong()));
-        } catch (final URISyntaxException e) {
-            return Single.error(e);
-        }
+        return withIOScheduler(Single.fromFuture(httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body))
+            .map(objectMapper::readTree)
+            .map(node -> node.get("time").asLong()));
     }
 
     public Single<List<Market>> getMarkets() {
-        try {
-            final var request = HttpRequest.newBuilder()
-                .uri(new URI(String.format("%s/%s", BASE_URL, "markets")))
-                .GET()
-                .build();
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("markets"))
+            .GET()
+            .build();
 
-            return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
+        return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
+    }
+
+    private static URI getURI(final String path) {
+        try {
+            return path.startsWith("/") ? new URI(String.format("%s%s", BASE_URL, path)) : new URI(String.format("%s/%s", BASE_URL, path));
         } catch (final URISyntaxException e) {
-            return Single.error(e);
+            throw new RuntimeException(e);
         }
     }
 

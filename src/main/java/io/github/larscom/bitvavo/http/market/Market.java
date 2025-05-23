@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.http;
+package io.github.larscom.bitvavo.http.market;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
