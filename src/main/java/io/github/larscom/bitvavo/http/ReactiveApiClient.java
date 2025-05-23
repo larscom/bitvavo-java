@@ -17,8 +17,10 @@ import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +30,17 @@ import java.util.concurrent.Executors;
 public class ReactiveApiClient {
     private static final String BASE_URL = "https://api.bitvavo.com/v2";
     private static final ObjectMapper objectMapper = ObjectMapperProvider.getObjectMapper();
+
+    private static final String HEADER_RATE_LIMIT_LIMIT = "Bitvavo-Ratelimit-Limit";
+    private static final String HEADER_RATE_LIMIT_REMAINING = "Bitvavo-Ratelimit-Remaining";
+    private static final String HEADER_RATE_LIMIT_RESET_AT = "Bitvavo-Ratelimit-Resetat";
+
+    private static final String HEADER_ACCESS_KEY = "Bitvavo-Access-Key";
+    private static final String HEADER_ACCESS_SIGNATURE = "Bitvavo-Access-Signature";
+    private static final String HEADER_ACCESS_TIMESTAMP = "Bitvavo-Access-Timestamp";
+    private static final String HEADER_ACCESS_WINDOW = "Bitvavo-Access-Window";
+
+    private volatile BitvavoRateLimit rateLimit = BitvavoRateLimit.DEFAULT;
 
     private final HttpClient httpClient;
 
@@ -45,14 +58,17 @@ public class ReactiveApiClient {
         httpClient = builder.build();
     }
 
+    public BitvavoRateLimit getRateLimit() {
+        return rateLimit;
+    }
+
     public Single<Long> getTime() {
         final var request = HttpRequest.newBuilder()
             .uri(getURI("time"))
             .GET()
             .build();
 
-        return withIOScheduler(Single.fromFuture(httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body))
+        return withIOScheduler(Single.fromFuture(withRateLimit(httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())))
             .map(objectMapper::readTree)
             .map(node -> node.get("time").asLong()));
     }
@@ -91,15 +107,71 @@ public class ReactiveApiClient {
         return new BasicNameValuePair(key, value);
     }
 
+    private <T> CompletableFuture<T> withRateLimit(final CompletableFuture<HttpResponse<T>> response) {
+        return response.thenApply(r -> {
+            updateRateLimit(r.headers());
+            return r.body();
+        });
+    }
+
     private static <T> Single<T> withIOScheduler(final Single<T> single) {
         return single.subscribeOn(Schedulers.io());
     }
 
     private <T> CompletableFuture<T> sendAsync(final HttpRequest request, final Class<T> type) {
-        return httpClient.sendAsync(request, new JsonBodyHandler<>(type, objectMapper)).thenApply(HttpResponse::body);
+        return withRateLimit(httpClient.sendAsync(request, new JsonBodyHandler<T>(type, objectMapper)));
     }
 
     private <T> CompletableFuture<T> sendAsync(final HttpRequest request, final TypeReference<T> type) {
-        return httpClient.sendAsync(request, new JsonBodyHandler<>(type, objectMapper)).thenApply(HttpResponse::body);
+        return withRateLimit(httpClient.sendAsync(request, new JsonBodyHandler<>(type, objectMapper)));
+    }
+
+    private void updateRateLimit(final HttpHeaders headers) {
+        System.out.println("Updating ratelimit: " + headers);
+        final var limit = headers.firstValue(HEADER_RATE_LIMIT_LIMIT).map(Integer::parseInt);
+        final var remaining = headers.firstValue(HEADER_RATE_LIMIT_REMAINING).map(Integer::parseInt);
+        final var resetAt = headers.firstValue(HEADER_RATE_LIMIT_RESET_AT).map(Long::parseLong);
+
+        limit.flatMap(lim -> remaining.flatMap(rem -> resetAt.map(res -> BitvavoRateLimit.of(lim, rem, res))))
+            .ifPresent(r -> rateLimit = r);
+    }
+
+    public static class BitvavoRateLimit {
+        private final int limit;
+        private final int remaining;
+        private final Instant resetAt;
+
+        public static BitvavoRateLimit DEFAULT = new BitvavoRateLimit(1000, 1000, Instant.now().toEpochMilli());
+
+        private BitvavoRateLimit(final int limit, final int remaining, final long resetAt) {
+            this.limit = limit;
+            this.remaining = remaining;
+            this.resetAt = Instant.ofEpochMilli(resetAt);
+        }
+
+        public static BitvavoRateLimit of(final int limit, final int remaining, final long resetAt) {
+            return new BitvavoRateLimit(limit, remaining, resetAt);
+        }
+
+        public Instant getResetAt() {
+            return resetAt;
+        }
+
+        public int getRemaining() {
+            return remaining;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
+
+        @Override
+        public String toString() {
+            return "BitvavoRateLimit{" +
+                "limit=" + limit +
+                ", remaining=" + remaining +
+                ", resetAt=" + resetAt +
+                '}';
+        }
     }
 }
