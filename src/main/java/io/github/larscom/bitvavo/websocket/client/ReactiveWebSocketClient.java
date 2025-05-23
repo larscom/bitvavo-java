@@ -1,11 +1,10 @@
 package io.github.larscom.bitvavo.websocket.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.internal.CryptoUtils;
 import io.github.larscom.bitvavo.internal.Either;
 import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
-import io.github.larscom.bitvavo.websocket.*;
 import io.github.larscom.bitvavo.websocket.Error;
+import io.github.larscom.bitvavo.websocket.Trade;
 import io.github.larscom.bitvavo.websocket.account.Authentication;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
 import io.github.larscom.bitvavo.websocket.account.Fill;
@@ -27,7 +26,6 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
 
 import java.net.Proxy;
-import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -44,23 +42,23 @@ public class ReactiveWebSocketClient {
     private final BehaviorSubject<Either<MessageIn, Error>> incoming;
     private final Flowable<Either<MessageIn, Error>> outgoing;
 
-    public ReactiveWebSocketClient() throws InterruptedException {
+    public ReactiveWebSocketClient() {
         this(Optional.empty(), Optional.empty());
     }
 
-    public ReactiveWebSocketClient(@NonNull final Proxy proxy) throws InterruptedException {
+    public ReactiveWebSocketClient(@NonNull final Proxy proxy) {
         this(Optional.empty(), Optional.of(proxy));
     }
 
-    public ReactiveWebSocketClient(@NonNull final Credentials credentials) throws InterruptedException {
+    public ReactiveWebSocketClient(@NonNull final Credentials credentials) {
         this(Optional.of(credentials), Optional.empty());
     }
 
-    public ReactiveWebSocketClient(@NonNull final Credentials credentials, @NonNull final Proxy proxy) throws InterruptedException {
+    public ReactiveWebSocketClient(@NonNull final Credentials credentials, @NonNull final Proxy proxy) {
         this(Optional.of(credentials), Optional.of(proxy));
     }
 
-    private ReactiveWebSocketClient(final Optional<Credentials> credentials, final Optional<Proxy> proxy) throws InterruptedException {
+    private ReactiveWebSocketClient(final Optional<Credentials> credentials, final Optional<Proxy> proxy) {
         this.incoming = BehaviorSubject.create();
         this.outgoing = incoming.toFlowable(BackpressureStrategy.BUFFER);
 
@@ -107,7 +105,7 @@ public class ReactiveWebSocketClient {
         return outgoing.filter(Either::isRight).map(Either::getRight);
     }
 
-    public void subscribe(final Set<Channel> channels) throws JsonProcessingException {
+    public void subscribe(final Set<Channel> channels) {
         if (running) {
             sendSubscribe(channels);
         } else {
@@ -115,7 +113,7 @@ public class ReactiveWebSocketClient {
         }
     }
 
-    public void unsubscribe(final Set<Channel> channels) throws JsonProcessingException {
+    public void unsubscribe(final Set<Channel> channels) {
         if (running) {
             sendUnsubscribe(channels);
         } else {
@@ -128,7 +126,7 @@ public class ReactiveWebSocketClient {
         webSocket.terminate();
     }
 
-    private void startBlocking(final Optional<Credentials> credentials, final Optional<Proxy> proxy) throws InterruptedException {
+    private void startBlocking(final Optional<Credentials> credentials, final Optional<Proxy> proxy) {
         running = true;
 
         final var startLatch = new CountDownLatch(1);
@@ -143,21 +141,24 @@ public class ReactiveWebSocketClient {
                     proxy.ifPresent(webSocket::setProxy);
 
                     connectAndReceive(webSocket, credentials, startLatch, activeSubscriptions);
-                } catch (final InterruptedException | URISyntaxException | JsonProcessingException |
-                               NoSuchAlgorithmException | InvalidKeyException e) {
+                } catch (final InterruptedException | NoSuchAlgorithmException | InvalidKeyException e) {
                     throw new RuntimeException(e);
                 }
             }
         });
 
-        startLatch.await();
+        try {
+            startLatch.await();
+        } catch (final InterruptedException e) {
+            // ignored
+        }
     }
 
     private void connectAndReceive(
         final WebSocket webSocket,
         final Optional<Credentials> credentials,
         final CountDownLatch startLatch,
-        final HashMap<ChannelName, SubscriptionValue> activeSubscriptions) throws InterruptedException, NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
+        final HashMap<ChannelName, SubscriptionValue> activeSubscriptions) throws InterruptedException, NoSuchAlgorithmException, InvalidKeyException {
         if (webSocket.connectBlocking()) {
             if (credentials.isPresent()) {
                 sendAuthenticate(credentials.get());
@@ -197,7 +198,7 @@ public class ReactiveWebSocketClient {
         }
     }
 
-    private void sendSubscribe(final Set<Channel> channels) throws JsonProcessingException {
+    private void sendSubscribe(final Set<Channel> channels) {
         final var message = MessageOut.builder()
             .action(Action.SUBSCRIBE)
             .channels(channels)
@@ -206,7 +207,7 @@ public class ReactiveWebSocketClient {
         webSocket.send(message);
     }
 
-    private void sendUnsubscribe(final Set<Channel> channels) throws JsonProcessingException {
+    private void sendUnsubscribe(final Set<Channel> channels) {
         final var message = MessageOut.builder()
             .action(Action.UNSUBSCRIBE)
             .channels(channels)
@@ -215,7 +216,7 @@ public class ReactiveWebSocketClient {
         webSocket.send(message);
     }
 
-    private void sendAuthenticate(@NonNull final Credentials credentials) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
+    private void sendAuthenticate(@NonNull final Credentials credentials) throws NoSuchAlgorithmException, InvalidKeyException {
         final var timestamp = Instant.now().toEpochMilli();
         final var message = MessageOut.builder()
             .action(Action.AUTHENTICATE)

@@ -5,14 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.bitvavo.internal.Either;
 import io.github.larscom.bitvavo.websocket.Error;
-import io.github.larscom.bitvavo.websocket.message.MessageIn;
-import io.github.larscom.bitvavo.websocket.message.MessageInEvent;
 import io.github.larscom.bitvavo.websocket.Trade;
 import io.github.larscom.bitvavo.websocket.account.Authentication;
 import io.github.larscom.bitvavo.websocket.account.Fill;
 import io.github.larscom.bitvavo.websocket.account.Order;
 import io.github.larscom.bitvavo.websocket.book.Book;
 import io.github.larscom.bitvavo.websocket.candle.Candle;
+import io.github.larscom.bitvavo.websocket.message.MessageIn;
+import io.github.larscom.bitvavo.websocket.message.MessageInEvent;
 import io.github.larscom.bitvavo.websocket.subscription.Subscription;
 import io.github.larscom.bitvavo.websocket.ticker.Ticker;
 import io.github.larscom.bitvavo.websocket.ticker.Ticker24h;
@@ -47,8 +47,8 @@ class WebSocket extends WebSocketClient {
         put(MessageInEvent.FILL, Fill.class);
     }};
 
-    public WebSocket(final ObjectMapper objectMapper) throws InterruptedException, URISyntaxException {
-        super(new URI("wss://ws.bitvavo.com/v2"));
+    public WebSocket(final ObjectMapper objectMapper)  {
+        super(createURI("wss://ws.bitvavo.com/v2"));
         this.objectMapper = objectMapper;
         this.closeLatch = new CountDownLatch(1);
         this.incoming = PublishSubject.create();
@@ -59,8 +59,12 @@ class WebSocket extends WebSocketClient {
         return outgoing;
     }
 
-    public void send(final MessageOut message) throws JsonProcessingException {
-        send(objectMapper.writeValueAsString(message));
+    public void send(final MessageOut message) {
+        try {
+            send(objectMapper.writeValueAsString(message));
+        } catch (final JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void blockUntilClosed() throws InterruptedException {
@@ -127,6 +131,14 @@ class WebSocket extends WebSocketClient {
             .build();
 
         incoming.onNext(Either.right(error));
+    }
+
+    private static URI createURI(final String uri) {
+        try {
+            return new URI(uri);
+        } catch (final URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private <T> Optional<T> maybeDeserialize(final String json, final Class<T> clazz) {
