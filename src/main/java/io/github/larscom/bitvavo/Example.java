@@ -1,10 +1,9 @@
 package io.github.larscom.bitvavo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.bitvavo.websocket.channel.Channel;
-import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
 import io.github.larscom.bitvavo.websocket.candle.Interval;
+import io.github.larscom.bitvavo.websocket.channel.Channel;
+import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Optional;
@@ -12,7 +11,7 @@ import java.util.Set;
 
 class Example {
 
-    public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+    public static void main(final String[] args) throws InterruptedException {
         final var apiKey = Optional.ofNullable(System.getenv("API_KEY"));
         final var apiSecret = Optional.ofNullable(System.getenv("API_SECRET"));
 

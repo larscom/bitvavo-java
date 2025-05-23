@@ -41,7 +41,6 @@ Add `bitvavo-java` to your `pom.xml`:
 Here's a quick example to get you started:
 
 ```java
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
@@ -50,7 +49,7 @@ import java.util.Set;
 
 class Main {
 
-  public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+  public static void main(final String[] args) throws InterruptedException {
     final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
 
     final Channel channel = Channel.builder()
@@ -81,7 +80,6 @@ Subscribing to `orders` and `fills` requires authentication (`api key` / `api se
 in [Bitvavo](https://account.bitvavo.com/user/api)
 
 ```java
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
@@ -91,7 +89,7 @@ import java.util.Set;
 
 class Main {
 
-  public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+  public static void main(final String[] args) throws InterruptedException {
     final Credentials credentials = new Credentials("MY_API_KEY", "MY_API_SECRET");
 
     // pass the credentials
@@ -120,7 +118,6 @@ class Main {
 If you need a proxy you can simply pass a `java.net.Proxy` object to the `ReactiveWebSocketClient` constructor.
 
 ```java
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
@@ -131,7 +128,7 @@ import java.util.Set;
 
 class Main {
 
-  public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+  public static void main(final String[] args) throws InterruptedException {
     final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.example.com", 8080));
 
     // pass the proxy
@@ -161,7 +158,6 @@ class Main {
 If you want to handle multiple events in a single stream you can use `instanceof`
 
 ```java
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.book.Book;
@@ -172,7 +168,7 @@ import java.util.Set;
 
 class Main {
 
-  public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
+  public static void main(final String[] args) throws InterruptedException {
     final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
 
     final Set<Channel> channels = Set.of(
