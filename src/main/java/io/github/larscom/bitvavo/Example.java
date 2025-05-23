@@ -1,6 +1,9 @@
 package io.github.larscom.bitvavo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.larscom.bitvavo.http.ReactiveApiClient;
+import io.github.larscom.bitvavo.http.market.Market;
+import io.github.larscom.bitvavo.http.market.MarketStatus;
 import io.github.larscom.bitvavo.websocket.Channel;
 import io.github.larscom.bitvavo.websocket.ChannelName;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
@@ -20,38 +23,46 @@ class Example {
             apiSecret.map(secret -> new Credentials(key, secret))
         );
 
-        final ReactiveWebSocketClient client;
+        final ReactiveWebSocketClient webSocketClient;
 
         if (credentials.isPresent()) {
-            client = new ReactiveWebSocketClient(credentials.get());
+            webSocketClient = new ReactiveWebSocketClient(credentials.get());
 
-            client.subscribe(Set.of(Channel.builder().name(ChannelName.ACCOUNT).markets(Set.of("ETH-EUR", "BTC-EUR")).build()));
+            webSocketClient.subscribe(Set.of(Channel.builder().name(ChannelName.ACCOUNT).markets(Set.of("ETH-EUR", "BTC-EUR")).build()));
 
-            client.orders().subscribe(System.out::println);
-            client.fills().subscribe(System.out::println);
+            webSocketClient.orders().subscribe(System.out::println);
+            webSocketClient.fills().subscribe(System.out::println);
         } else {
-            client = new ReactiveWebSocketClient();
+            webSocketClient = new ReactiveWebSocketClient();
         }
 
+        final var apiClient = new ReactiveApiClient();
+
+        final var markets = apiClient.getMarkets().blockingGet()
+            .stream()
+            .filter(market -> market.getStatus() == MarketStatus.TRADING)
+            .map(Market::getMarket)
+            .toList();
+
         final var channels = Set.of(
-            Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
-            Channel.builder().name(ChannelName.TICKER24H).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
-            Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
-            Channel.builder().name(ChannelName.TRADES).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build(),
-            Channel.builder().name(ChannelName.CANDLES).intervals(Set.of(Interval.M1)).markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR")).build()
+            Channel.builder().name(ChannelName.TICKER).markets(markets).build(),
+            Channel.builder().name(ChannelName.TICKER24H).markets(markets).build(),
+            Channel.builder().name(ChannelName.BOOK).markets(markets).build(),
+            Channel.builder().name(ChannelName.TRADES).markets(markets).build(),
+            Channel.builder().name(ChannelName.CANDLES).intervals(Set.of(Interval.M1)).markets(markets).build()
         );
-        client.subscribe(channels);
+        webSocketClient.subscribe(channels);
 
         // receive errors, mostly for debug purposes
-        client.errors().subscribe(System.out::println);
+        webSocketClient.errors().subscribe(System.out::println);
 
         // receive data
-        client.tickers().subscribe(System.out::println);
-        client.tickers24h().subscribe(System.out::println);
-        client.books().subscribe(System.out::println);
-        client.subscriptions().subscribe(System.out::println);
-        client.candles().subscribe(System.out::println);
-        client.trades().subscribe(System.out::println);
+        webSocketClient.tickers().subscribe(System.out::println);
+        webSocketClient.tickers24h().subscribe(System.out::println);
+        webSocketClient.books().subscribe(System.out::println);
+        webSocketClient.subscriptions().subscribe(System.out::println);
+        webSocketClient.candles().subscribe(System.out::println);
+        webSocketClient.trades().subscribe(System.out::println);
 
         Thread.currentThread().join();
     }

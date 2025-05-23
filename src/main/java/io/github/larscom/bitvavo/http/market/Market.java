@@ -13,4 +13,7 @@ import org.immutables.value.Value;
 public interface Market {
     /// The market name (e.g. "ETH-EUR").
     String getMarket();
+
+    /// The status of the market.
+    MarketStatus getStatus();
 }
