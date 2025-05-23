@@ -11,7 +11,7 @@ class ExampleHttp {
         });
 
         client.getMarkets().subscribe((markets, throwable) -> {
-            System.out.println(markets);
+            System.out.println(markets.stream().filter(m -> m.getMarket().equals("HONEY-EUR")).findFirst());
         });
 
         Thread.currentThread().join();
