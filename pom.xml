@@ -50,6 +50,7 @@
         <jackson.jdk8.version>2.19.0</jackson.jdk8.version>
         <rxjava.version>3.1.10</rxjava.version>
         <immutables.version>2.10.1</immutables.version>
+        <httpcomponents-client5.version>5.4.4</httpcomponents-client5.version>
 
         <junit.jupiter.version>5.12.2</junit.jupiter.version>
         <assertj.version>3.27.3</assertj.version>
@@ -87,6 +88,11 @@
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
             <version>${immutables.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>${httpcomponents-client5.version}</version>
         </dependency>
 
         <dependency>

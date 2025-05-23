@@ -3,6 +3,8 @@ package io.github.larscom.bitvavo.internal;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.larscom.bitvavo.error.BitvavoError;
+import io.github.larscom.bitvavo.error.BitvavoException;
 import io.reactivex.rxjava3.annotations.NonNull;
 
 import java.net.http.HttpResponse;
@@ -41,6 +43,11 @@ public class JsonBodyHandler<T> implements BodyHandler<T> {
 
     private T parse(final String body) {
         try {
+            final var isError = objectMapper.readTree(body).has("error");
+            if (isError) {
+                throw new BitvavoException(objectMapper.readValue(body, BitvavoError.class));
+            }
+
             if (clazz.isPresent()) {
                 return objectMapper.readValue(body, clazz.get());
             } else if (typeReference.isPresent()) {

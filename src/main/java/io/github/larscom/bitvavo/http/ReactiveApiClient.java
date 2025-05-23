@@ -8,6 +8,9 @@ import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
@@ -16,6 +19,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -62,12 +66,29 @@ public class ReactiveApiClient {
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
-    private static URI getURI(final String path) {
+    public Single<Market> getMarket(final String market) {
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("markets", createParameter("market", market)))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, Market.class)));
+    }
+
+    private static URI getURI(final String path, final NameValuePair... parameters) {
+        final var url = path.startsWith("/") ? String.format("%s%s", BASE_URL, path) : String.format("%s/%s", BASE_URL, path);
+
         try {
-            return path.startsWith("/") ? new URI(String.format("%s%s", BASE_URL, path)) : new URI(String.format("%s/%s", BASE_URL, path));
+            return new URIBuilder(url)
+                .addParameters(Arrays.stream(parameters).toList())
+                .build();
         } catch (final URISyntaxException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static BasicNameValuePair createParameter(final String key, final String value) {
+        return new BasicNameValuePair(key, value);
     }
 
     private static <T> Single<T> withIOScheduler(final Single<T> single) {

@@ -3,7 +3,7 @@ package io.github.larscom.bitvavo.websocket.client;
 import io.github.larscom.bitvavo.internal.CryptoUtils;
 import io.github.larscom.bitvavo.internal.Either;
 import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
-import io.github.larscom.bitvavo.websocket.Error;
+import io.github.larscom.bitvavo.error.BitvavoError;
 import io.github.larscom.bitvavo.websocket.Trade;
 import io.github.larscom.bitvavo.websocket.account.Authentication;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
@@ -39,8 +39,8 @@ public class ReactiveWebSocketClient {
     private volatile WebSocket webSocket;
     private volatile boolean running;
 
-    private final BehaviorSubject<Either<MessageIn, Error>> incoming;
-    private final Flowable<Either<MessageIn, Error>> outgoing;
+    private final BehaviorSubject<Either<MessageIn, BitvavoError>> incoming;
+    private final Flowable<Either<MessageIn, BitvavoError>> outgoing;
 
     public ReactiveWebSocketClient() {
         this(Optional.empty(), Optional.empty());
@@ -101,7 +101,7 @@ public class ReactiveWebSocketClient {
         return mapTo(messages(), Fill.class);
     }
 
-    public Flowable<Error> errors() {
+    public Flowable<BitvavoError> errors() {
         return outgoing.filter(Either::isRight).map(Either::getRight);
     }
 

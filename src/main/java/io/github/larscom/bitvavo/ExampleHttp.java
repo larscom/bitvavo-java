@@ -10,8 +10,8 @@ class ExampleHttp {
             System.out.println(theTime);
         });
 
-        client.getMarkets().subscribe((markets, throwable) -> {
-            System.out.println(markets.stream().filter(m -> m.getMarket().equals("HONEY-EUR")).findFirst());
+        client.getMarket("BTC-EUR").subscribe((markets, throwable) -> {
+            System.out.println(markets);
         });
 
         Thread.currentThread().join();
