@@ -8,10 +8,10 @@ import io.github.larscom.bitvavo.error.BitvavoException;
 import io.reactivex.rxjava3.annotations.NonNull;
 
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodySubscriber;
 import java.net.http.HttpResponse.BodySubscribers;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class JsonBodyHandler<T> implements BodyHandler<T> {

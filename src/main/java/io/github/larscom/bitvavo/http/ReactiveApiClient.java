@@ -6,8 +6,10 @@ import io.github.larscom.bitvavo.http.market.Market;
 import io.github.larscom.bitvavo.internal.JsonBodyHandler;
 import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
 import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIBuilder;
@@ -40,8 +42,7 @@ public class ReactiveApiClient {
     private static final String HEADER_ACCESS_TIMESTAMP = "Bitvavo-Access-Timestamp";
     private static final String HEADER_ACCESS_WINDOW = "Bitvavo-Access-Window";
 
-    private volatile BitvavoRateLimit rateLimit = BitvavoRateLimit.DEFAULT;
-
+    private final BehaviorSubject<BitvavoRateLimit> rateLimit;
     private final HttpClient httpClient;
 
     public ReactiveApiClient(@NonNull final InetSocketAddress proxyAddress) {
@@ -53,13 +54,18 @@ public class ReactiveApiClient {
     }
 
     private ReactiveApiClient(final Optional<InetSocketAddress> proxyAddress) {
+        rateLimit = BehaviorSubject.createDefault(BitvavoRateLimit.DEFAULT);
         final var builder = HttpClient.newBuilder().executor(Executors.newVirtualThreadPerTaskExecutor());
         proxyAddress.map(ProxySelector::of).ifPresent(builder::proxy);
         httpClient = builder.build();
     }
 
+    public Observable<BitvavoRateLimit> getRateLimitStream() {
+        return Observable.wrap(rateLimit);
+    }
+
     public BitvavoRateLimit getRateLimit() {
-        return rateLimit;
+        return rateLimit.getValue();
     }
 
     public Single<Long> getTime() {
@@ -132,7 +138,7 @@ public class ReactiveApiClient {
         final var resetAt = headers.firstValue(HEADER_RATE_LIMIT_RESET_AT).map(Long::parseLong);
 
         limit.flatMap(lim -> remaining.flatMap(rem -> resetAt.map(res -> BitvavoRateLimit.of(lim, rem, res))))
-            .ifPresent(r -> rateLimit = r);
+            .ifPresent(rateLimit::onNext);
     }
 
     public static class BitvavoRateLimit {
