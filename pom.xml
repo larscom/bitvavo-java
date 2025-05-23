@@ -189,7 +189,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>io.github.larscom.Example</mainClass>
+                    <mainClass>io.github.larscom.bitvavo.Example</mainClass>
                 </configuration>
             </plugin>
         </plugins>

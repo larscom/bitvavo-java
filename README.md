@@ -42,9 +42,9 @@ Here's a quick example to get you started:
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.websocket.Channel;
-import io.github.larscom.websocket.ChannelName;
-import io.github.larscom.websocket.client.ReactiveWebSocketClient;
+import io.github.larscom.bitvavo.websocket.Channel;
+import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Set;
 
@@ -82,10 +82,10 @@ in [Bitvavo](https://account.bitvavo.com/user/api)
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.websocket.Channel;
-import io.github.larscom.websocket.ChannelName;
-import io.github.larscom.websocket.account.Credentials;
-import io.github.larscom.websocket.client.ReactiveWebSocketClient;
+import io.github.larscom.bitvavo.websocket.Channel;
+import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.account.Credentials;
+import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Set;
 
@@ -121,9 +121,9 @@ If you need a proxy you can simply pass a `java.net.Proxy` object to the `Reacti
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.websocket.Channel;
-import io.github.larscom.websocket.ChannelName;
-import io.github.larscom.websocket.client.ReactiveWebSocketClient;
+import io.github.larscom.bitvavo.websocket.Channel;
+import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -133,7 +133,7 @@ class Main {
 
     public static void main(final String[] args) throws InterruptedException, JsonProcessingException {
         final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.example.com", 8080));
-        
+
         // pass the proxy
         final ReactiveWebSocketClient client = new ReactiveWebSocketClient(proxy);
 
@@ -162,12 +162,11 @@ If you want to handle multiple events in a single stream you can use `instanceof
 
 ```java
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.websocket.Channel;
-import io.github.larscom.websocket.ChannelName;
-import io.github.larscom.websocket.book.Book;
-import io.github.larscom.websocket.client.ReactiveWebSocketClient;
-import io.github.larscom.websocket.ticker.Ticker;
-import io.github.larscom.websocket.book.Book;
+import io.github.larscom.bitvavo.websocket.Channel;
+import io.github.larscom.bitvavo.websocket.ChannelName;
+import io.github.larscom.bitvavo.websocket.book.Book;
+import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
+import io.github.larscom.bitvavo.websocket.ticker.Ticker;
 
 import java.util.Set;
 
