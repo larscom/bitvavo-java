@@ -1,7 +1,8 @@
-package io.github.larscom.bitvavo.http;
+package io.github.larscom.bitvavo.http.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.market.Market;
 import io.github.larscom.bitvavo.internal.JsonBodyHandler;
 import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
@@ -94,6 +95,24 @@ public class ReactiveApiClient {
             .build();
 
         return withIOScheduler(Single.fromFuture(sendAsync(request, Market.class)));
+    }
+
+    public Single<List<Asset>> getAssets() {
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("assets"))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
+    }
+
+    public Single<Asset> getAsset(final String symbol) {
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("assets", createParameter("symbol", symbol)))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, Asset.class)));
     }
 
     private static URI getURI(final String path, final NameValuePair... parameters) {

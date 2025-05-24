@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.http;
+package io.github.larscom.bitvavo.http.client;
 
 import java.time.Instant;
 
