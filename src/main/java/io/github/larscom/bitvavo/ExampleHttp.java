@@ -6,8 +6,6 @@ class ExampleHttp {
     public static void main(final String[] args) throws InterruptedException {
         final var client = new ReactiveApiClient();
 
-        client.getRateLimitStream().subscribe(System.out::println);
-
         client.getTime().subscribe((theTime, throwable) -> {
             System.out.println(theTime);
         });
