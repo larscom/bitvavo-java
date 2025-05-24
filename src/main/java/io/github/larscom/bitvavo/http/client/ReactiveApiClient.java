@@ -135,9 +135,8 @@ public class ReactiveApiClient {
         return getTrades(market, null);
     }
 
-    public Single<List<Trade>> getTrades(final String market, final TradeQueryParams tradeQueryParams) {
-        final var params = tradeQueryParams != null ? tradeQueryParams.getPairs() : new NameValuePair[0];
-
+    public Single<List<Trade>> getTrades(final String market, final TradeQueryParams queryParams) {
+        final var params = Optional.ofNullable(queryParams).map(TradeQueryParams::getPairs).orElseGet(() -> new NameValuePair[0]);
         final var request = HttpRequest.newBuilder()
             .uri(getURI(String.format("%s/trades", market), params))
             .GET()
