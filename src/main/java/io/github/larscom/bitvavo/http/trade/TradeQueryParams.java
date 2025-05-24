@@ -6,7 +6,6 @@ import org.immutables.value.Value;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,30 +35,30 @@ public interface TradeQueryParams {
     /// The unique identifier of the trade up to which to return the trades.
     Optional<UUID> getTradeIdTo();
 
-    default List<NameValuePair> getPairs() {
-        final var queryParams = new ArrayList<NameValuePair>();
+    default NameValuePair[] getPairs() {
+        final var pairs = new ArrayList<NameValuePair>();
 
         getLimit().ifPresent(limit ->
-            queryParams.add(new BasicNameValuePair("limit", limit.toString()))
+            pairs.add(new BasicNameValuePair("limit", limit.toString()))
         );
 
         getStart().ifPresent(start ->
-            queryParams.add(new BasicNameValuePair("start", String.valueOf(start.toEpochMilli())))
+            pairs.add(new BasicNameValuePair("start", String.valueOf(start.toEpochMilli())))
         );
 
         getEnd().ifPresent(end ->
-            queryParams.add(new BasicNameValuePair("end", String.valueOf(end.toEpochMilli())))
+            pairs.add(new BasicNameValuePair("end", String.valueOf(end.toEpochMilli())))
         );
 
         getTradeIdFrom().ifPresent(tradeId ->
-            queryParams.add(new BasicNameValuePair("tradeIdFrom", tradeId.toString()))
+            pairs.add(new BasicNameValuePair("tradeIdFrom", tradeId.toString()))
         );
 
         getTradeIdTo().ifPresent(tradeId ->
-            queryParams.add(new BasicNameValuePair("tradeIdTo", tradeId.toString()))
+            pairs.add(new BasicNameValuePair("tradeIdTo", tradeId.toString()))
         );
 
-        return queryParams;
+        return pairs.toArray(NameValuePair[]::new);
     }
 
     static Builder builder() {
