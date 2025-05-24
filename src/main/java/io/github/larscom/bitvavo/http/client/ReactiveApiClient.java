@@ -2,8 +2,11 @@ package io.github.larscom.bitvavo.http.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.larscom.bitvavo.http.trade.Trade;
 import io.github.larscom.bitvavo.http.asset.Asset;
+import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.market.Market;
+import io.github.larscom.bitvavo.http.trade.TradeQueryParams;
 import io.github.larscom.bitvavo.internal.JsonBodyHandler;
 import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -115,6 +118,34 @@ public class ReactiveApiClient {
         return withIOScheduler(Single.fromFuture(sendAsync(request, Asset.class)));
     }
 
+    public Single<Book> getOrderBook(final String market) {
+        return getOrderBook(market, 1000);
+    }
+
+    public Single<Book> getOrderBook(final String market, final int depth) {
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI(String.format("%s/book", market), createParameter("depth", String.valueOf(depth))))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, Book.class)));
+    }
+
+    public Single<List<Trade>> getTrades(final String market) {
+        return getTrades(market, null);
+    }
+
+    public Single<List<Trade>> getTrades(final String market, final TradeQueryParams tradeQueryParams) {
+        final var params = tradeQueryParams != null ? tradeQueryParams.getPairs().toArray(NameValuePair[]::new) : new NameValuePair[0];
+
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI(String.format("%s/trades", market), params))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
+    }
+
     private static URI getURI(final String path, final NameValuePair... parameters) {
         final var url = path.startsWith("/") ? String.format("%s%s", BASE_URL, path) : String.format("%s/%s", BASE_URL, path);
 
@@ -147,7 +178,7 @@ public class ReactiveApiClient {
     }
 
     private <T> CompletableFuture<T> sendAsync(final HttpRequest request, final TypeReference<T> type) {
-        return withRateLimit(httpClient.sendAsync(request, new JsonBodyHandler<>(type, objectMapper)));
+        return withRateLimit(httpClient.sendAsync(request, new JsonBodyHandler<T>(type, objectMapper)));
     }
 
     private void updateRateLimit(final HttpHeaders headers) {

@@ -1,0 +1,71 @@
+package io.github.larscom.bitvavo.http.trade;
+
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.immutables.value.Value;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Value.Immutable
+@Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
+public interface TradeQueryParams {
+    /// Possible values: >= 1 and <= 1000
+    ///
+    /// The maximum number of trades to return.
+    ///
+    /// Default value: 500
+    Optional<Integer> getLimit();
+
+    /// Instant starting from which to return trades.
+    /// NOTE: start and end must both be filled.
+    Optional<Instant> getStart();
+
+    /// Instant until which to return trades.
+    /// NOTE: start and end must both be filled.
+    ///
+    /// Cannot be more than 24 hours after the start time.
+    Optional<Instant> getEnd();
+
+    /// The unique identifier of the trade starting from which to return the trades.
+    Optional<UUID> getTradeIdFrom();
+
+    /// The unique identifier of the trade up to which to return the trades.
+    Optional<UUID> getTradeIdTo();
+
+    default List<NameValuePair> getPairs() {
+        final var queryParams = new ArrayList<NameValuePair>();
+
+        getLimit().ifPresent(limit ->
+            queryParams.add(new BasicNameValuePair("limit", limit.toString()))
+        );
+
+        getStart().ifPresent(start ->
+            queryParams.add(new BasicNameValuePair("start", String.valueOf(start.toEpochMilli())))
+        );
+
+        getEnd().ifPresent(end ->
+            queryParams.add(new BasicNameValuePair("end", String.valueOf(end.toEpochMilli())))
+        );
+
+        getTradeIdFrom().ifPresent(tradeId ->
+            queryParams.add(new BasicNameValuePair("tradeIdFrom", tradeId.toString()))
+        );
+
+        getTradeIdTo().ifPresent(tradeId ->
+            queryParams.add(new BasicNameValuePair("tradeIdTo", tradeId.toString()))
+        );
+
+        return queryParams;
+    }
+
+    static Builder builder() {
+        return new Builder();
+    }
+
+    class Builder extends ImmutableTradeQueryParams.Builder {
+    }
+}

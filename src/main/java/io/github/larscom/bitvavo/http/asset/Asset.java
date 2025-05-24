@@ -46,6 +46,6 @@ public interface Asset {
     Set<String> getNetworks();
 
     /// The reason if the withdrawalStatus or depositStatus is not OK.
-    @JsonDeserialize(using = EmptyStringDeserializer.class)
+    @JsonDeserialize(using = EmptyStringToOptionalDeserializer.class)
     Optional<String> getMessage();
 }
