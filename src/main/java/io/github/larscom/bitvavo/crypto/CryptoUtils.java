@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.internal;
+package io.github.larscom.bitvavo.crypto;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

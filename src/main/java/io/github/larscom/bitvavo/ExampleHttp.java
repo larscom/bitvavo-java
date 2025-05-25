@@ -1,9 +1,7 @@
 package io.github.larscom.bitvavo;
 
-import io.github.larscom.bitvavo.http.trade.TradeQueryParams;
+import io.github.larscom.bitvavo.http.candle.Interval;
 import io.github.larscom.bitvavo.http.client.ReactiveApiClient;
-
-import java.util.UUID;
 
 class ExampleHttp {
     public static void main(final String[] args) throws InterruptedException {
@@ -25,13 +23,28 @@ class ExampleHttp {
             System.out.println(book);
         });
 
-        final var params = TradeQueryParams.builder().tradeIdTo(UUID.fromString("00000000-0000-047b-0000-0000016cac2f")).build();
-        client.getTrades("ETH-EUR", params).subscribe((trades, throwable) -> {
-            if (throwable != null) {
-                System.err.println(throwable.getMessage());
-            } else {
-                System.out.println(trades);
-            }
+        client.getTrades("ETH-EUR").subscribe((trades, throwable) -> {
+            System.out.println(trades);
+        });
+
+        client.getTickerPrices().subscribe((tickerPrices, throwable) -> {
+            System.out.println(tickerPrices);
+        });
+
+        client.getTickerPrice("ETH-EUR").subscribe((tickerPrice, throwable) -> {
+            System.out.println(tickerPrice);
+        });
+
+        client.getTickerBooks().subscribe((tickerBooks, throwable) -> {
+            System.out.println(tickerBooks);
+        });
+
+        client.getTickerBook("ETH-EUR").subscribe((tickerBook, throwable) -> {
+            System.out.println(tickerBook);
+        });
+
+        client.getCandles("ETH-EUR", Interval.M1).subscribe((candles, throwable) -> {
+            System.out.println(candles);
         });
 
         Thread.currentThread().join();

@@ -1,5 +1,6 @@
 package io.github.larscom.bitvavo.internal;
 
+import io.github.larscom.bitvavo.crypto.CryptoUtils;
 import org.junit.jupiter.api.Test;
 
 import java.security.InvalidKeyException;

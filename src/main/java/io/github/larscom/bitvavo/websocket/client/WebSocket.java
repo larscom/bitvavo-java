@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.bitvavo.error.BitvavoError;
-import io.github.larscom.bitvavo.internal.Either;
 import io.github.larscom.bitvavo.websocket.Trade;
 import io.github.larscom.bitvavo.websocket.account.Authentication;
 import io.github.larscom.bitvavo.websocket.account.Fill;

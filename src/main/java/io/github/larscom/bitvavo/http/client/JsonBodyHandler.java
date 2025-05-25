@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.internal;
+package io.github.larscom.bitvavo.http.client;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;

@@ -2,13 +2,17 @@ package io.github.larscom.bitvavo.http.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.larscom.bitvavo.http.trade.Trade;
 import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
+import io.github.larscom.bitvavo.http.candle.Candle;
+import io.github.larscom.bitvavo.http.candle.CandleQueryParams;
+import io.github.larscom.bitvavo.http.candle.Interval;
 import io.github.larscom.bitvavo.http.market.Market;
+import io.github.larscom.bitvavo.http.ticker.TickerBook;
+import io.github.larscom.bitvavo.http.ticker.TickerPrice;
+import io.github.larscom.bitvavo.http.trade.Trade;
 import io.github.larscom.bitvavo.http.trade.TradeQueryParams;
-import io.github.larscom.bitvavo.internal.JsonBodyHandler;
-import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
+import io.github.larscom.bitvavo.json.ObjectMapperProvider;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -31,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 public class ReactiveApiClient {
     private static final String BASE_URL = "https://api.bitvavo.com/v2";
@@ -139,6 +144,61 @@ public class ReactiveApiClient {
         final var params = Optional.ofNullable(queryParams).map(TradeQueryParams::getPairs).orElseGet(() -> new NameValuePair[0]);
         final var request = HttpRequest.newBuilder()
             .uri(getURI(String.format("%s/trades", market), params))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
+    }
+
+    public Single<List<TickerPrice>> getTickerPrices() {
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("ticker/price"))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
+    }
+
+    public Single<TickerPrice> getTickerPrice(final String market) {
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("ticker/price", createParameter("market", market)))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, TickerPrice.class)));
+    }
+
+    public Single<List<TickerBook>> getTickerBooks() {
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("ticker/book"))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
+    }
+
+    public Single<TickerBook> getTickerBook(final String market) {
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI("ticker/book", createParameter("market", market)))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, TickerBook.class)));
+    }
+
+    public Single<List<Candle>> getCandles(final String market, final Interval interval) {
+        return getCandles(market, interval, null);
+    }
+
+    public Single<List<Candle>> getCandles(final String market, final Interval interval, final CandleQueryParams queryParams) {
+        final var params = Optional.ofNullable(queryParams).map(CandleQueryParams::getPairs).orElseGet(() -> new NameValuePair[0]);
+        final var request = HttpRequest.newBuilder()
+            .uri(getURI(
+                String.format("%s/candles", market),
+                Stream.concat(
+                        Stream.of(createParameter("interval", interval.serialize())),
+                        Arrays.stream(params))
+                    .toArray(NameValuePair[]::new)))
             .GET()
             .build();
 
