@@ -240,9 +240,14 @@ public class ReactiveApiClient {
         final var windowTime = getWindowTimeFromConfig();
 
         try {
-            final var payload = objectMapper.writeValueAsBytes(body);
             // TODO: check uri().getPath()
-            final var signature = CryptoUtils.createSignature(request.method(), request.uri().getPath(), Optional.of(payload), timestamp, credentials.apiSecret());
+            final var signature = CryptoUtils.createSignature(
+                request.method(),
+                request.uri().getPath(),
+                Optional.of(objectMapper.writeValueAsBytes(body)),
+                timestamp,
+                credentials.apiSecret()
+            );
 
             final var builder = HttpRequest.newBuilder(request, (s1, s2) -> true)
                 .header(HEADER_ACCESS_KEY, credentials.apiKey())
