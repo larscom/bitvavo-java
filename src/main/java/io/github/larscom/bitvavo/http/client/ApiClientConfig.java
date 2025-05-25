@@ -21,7 +21,7 @@ public interface ApiClientConfig {
     @Value.Check
     default void check() {
         getAccessWindowTime().ifPresent(time -> {
-            if (time == 0 || time > 600000) {
+            if (time <= 0 || time > 600000) {
                 throw new IllegalStateException("Cannot build ApiClientConfig, access window time must be > 0 and <= 60000");
             }
         });
