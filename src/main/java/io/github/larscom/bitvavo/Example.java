@@ -15,9 +15,7 @@ class Example {
         final var apiKey = Optional.ofNullable(System.getenv("API_KEY"));
         final var apiSecret = Optional.ofNullable(System.getenv("API_SECRET"));
 
-        final var credentials = apiKey.flatMap(key ->
-            apiSecret.map(secret -> new Credentials(key, secret))
-        );
+        final var credentials = apiKey.flatMap(key -> apiSecret.map(secret -> new Credentials(key, secret)));
 
         final ReactiveWebSocketClient client;
 

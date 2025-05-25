@@ -1,7 +1,9 @@
 package io.github.larscom.bitvavo.http.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.larscom.bitvavo.crypto.CryptoUtils;
 import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.candle.Candle;
@@ -22,7 +24,6 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIBuilder;
 
-import java.net.InetSocketAddress;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,6 +31,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -50,21 +55,32 @@ public class ReactiveApiClient {
     private static final String HEADER_ACCESS_TIMESTAMP = "Bitvavo-Access-Timestamp";
     private static final String HEADER_ACCESS_WINDOW = "Bitvavo-Access-Window";
 
+    private final Optional<ApiClientConfig> apiClientConfig;
+
     private final BehaviorSubject<RateLimitQuota> rateLimitQuota;
     private final HttpClient httpClient;
-
-    public ReactiveApiClient(@NonNull final InetSocketAddress proxyAddress) {
-        this(Optional.of(proxyAddress));
-    }
 
     public ReactiveApiClient() {
         this(Optional.empty());
     }
 
-    private ReactiveApiClient(final Optional<InetSocketAddress> proxyAddress) {
+    public ReactiveApiClient(@NonNull final ApiClientConfig apiClientConfig) {
+        this(Optional.of(apiClientConfig));
+    }
+
+    private ReactiveApiClient(final Optional<ApiClientConfig> apiClientConfig) {
+        this.apiClientConfig = apiClientConfig;
+
         rateLimitQuota = BehaviorSubject.createDefault(RateLimitQuota.DEFAULT);
-        final var builder = HttpClient.newBuilder().executor(Executors.newVirtualThreadPerTaskExecutor());
-        proxyAddress.map(ProxySelector::of).ifPresent(builder::proxy);
+
+        final var builder = HttpClient.newBuilder()
+            .executor(Executors.newVirtualThreadPerTaskExecutor())
+            .connectTimeout(Duration.ofSeconds(10));
+
+        apiClientConfig.flatMap(ApiClientConfig::getProxyAddress)
+            .map(ProxySelector::of)
+            .ifPresent(builder::proxy);
+
         httpClient = builder.build();
     }
 
@@ -203,6 +219,40 @@ public class ReactiveApiClient {
             .build();
 
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
+    }
+
+    private HttpRequest.Builder createRequestBuilder(final URI uri) {
+        return HttpRequest.newBuilder().timeout(Duration.ofMillis(getWindowTimeFromConfig()));
+    }
+
+    private int getWindowTimeFromConfig() {
+        return apiClientConfig.flatMap(ApiClientConfig::getAccessWindowTime).orElse(10000);
+    }
+
+    private <T> HttpRequest withAuthentication(
+        final HttpRequest request,
+        final T body
+    ) {
+        final var timestamp = Instant.now().toEpochMilli();
+        final var credentials = apiClientConfig.flatMap(ApiClientConfig::getCredentials)
+            .orElseThrow(() -> new RuntimeException("Credentials are required for authenticated requests")); // TODO: custom exception
+
+        final var windowTime = getWindowTimeFromConfig();
+
+        try {
+            final var payload = objectMapper.writeValueAsBytes(body);
+            final var signature = CryptoUtils.createSignature(request.method(), request.uri().getPath(), Optional.of(payload), timestamp, credentials.apiSecret());
+
+            final var builder = HttpRequest.newBuilder(request, (s1, s2) -> true)
+                .header(HEADER_ACCESS_KEY, credentials.apiKey())
+                .header(HEADER_ACCESS_SIGNATURE, signature)
+                .header(HEADER_ACCESS_TIMESTAMP, String.valueOf(timestamp))
+                .header(HEADER_ACCESS_WINDOW, String.valueOf(windowTime));
+
+            return builder.build();
+        } catch (final JsonProcessingException | NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static URI getURI(final String path, final NameValuePair... parameters) {
