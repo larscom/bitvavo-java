@@ -7,6 +7,7 @@ import io.github.larscom.bitvavo.crypto.CryptoUtils;
 import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.candle.Candle;
+import io.github.larscom.bitvavo.http.candle.Candle24h;
 import io.github.larscom.bitvavo.http.candle.CandleQueryParams;
 import io.github.larscom.bitvavo.http.candle.Interval;
 import io.github.larscom.bitvavo.http.market.Market;
@@ -93,8 +94,7 @@ public class ReactiveApiClient {
     }
 
     public Single<Long> getTime() {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("time"))
+        final var request = getRequestBuilder(getURI("time"))
             .GET()
             .build();
 
@@ -104,8 +104,7 @@ public class ReactiveApiClient {
     }
 
     public Single<List<Market>> getMarkets() {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("markets"))
+        final var request = getRequestBuilder(getURI("markets"))
             .GET()
             .build();
 
@@ -113,8 +112,7 @@ public class ReactiveApiClient {
     }
 
     public Single<Market> getMarket(final String market) {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("markets", createParameter("market", market)))
+        final var request = getRequestBuilder(getURI("markets", createParameter("market", market)))
             .GET()
             .build();
 
@@ -122,8 +120,7 @@ public class ReactiveApiClient {
     }
 
     public Single<List<Asset>> getAssets() {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("assets"))
+        final var request = getRequestBuilder(getURI("assets"))
             .GET()
             .build();
 
@@ -131,8 +128,7 @@ public class ReactiveApiClient {
     }
 
     public Single<Asset> getAsset(final String symbol) {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("assets", createParameter("symbol", symbol)))
+        final var request = getRequestBuilder(getURI("assets", createParameter("symbol", symbol)))
             .GET()
             .build();
 
@@ -144,8 +140,7 @@ public class ReactiveApiClient {
     }
 
     public Single<Book> getOrderBook(final String market, final int depth) {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI(String.format("%s/book", market), createParameter("depth", String.valueOf(depth))))
+        final var request = getRequestBuilder(getURI(String.format("%s/book", market), createParameter("depth", String.valueOf(depth))))
             .GET()
             .build();
 
@@ -158,8 +153,7 @@ public class ReactiveApiClient {
 
     public Single<List<Trade>> getTrades(final String market, final TradeQueryParams queryParams) {
         final var params = Optional.ofNullable(queryParams).map(TradeQueryParams::getPairs).orElseGet(() -> new NameValuePair[0]);
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI(String.format("%s/trades", market), params))
+        final var request = getRequestBuilder(getURI(String.format("%s/trades", market), params))
             .GET()
             .build();
 
@@ -167,8 +161,7 @@ public class ReactiveApiClient {
     }
 
     public Single<List<TickerPrice>> getTickerPrices() {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("ticker/price"))
+        final var request = getRequestBuilder(getURI("ticker/price"))
             .GET()
             .build();
 
@@ -176,8 +169,7 @@ public class ReactiveApiClient {
     }
 
     public Single<TickerPrice> getTickerPrice(final String market) {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("ticker/price", createParameter("market", market)))
+        final var request = getRequestBuilder(getURI("ticker/price", createParameter("market", market)))
             .GET()
             .build();
 
@@ -185,8 +177,7 @@ public class ReactiveApiClient {
     }
 
     public Single<List<TickerBook>> getTickerBooks() {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("ticker/book"))
+        final var request = getRequestBuilder(getURI("ticker/book"))
             .GET()
             .build();
 
@@ -194,8 +185,7 @@ public class ReactiveApiClient {
     }
 
     public Single<TickerBook> getTickerBook(final String market) {
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI("ticker/book", createParameter("market", market)))
+        final var request = getRequestBuilder(getURI("ticker/book", createParameter("market", market)))
             .GET()
             .build();
 
@@ -208,24 +198,41 @@ public class ReactiveApiClient {
 
     public Single<List<Candle>> getCandles(final String market, final Interval interval, final CandleQueryParams queryParams) {
         final var params = Optional.ofNullable(queryParams).map(CandleQueryParams::getPairs).orElseGet(() -> new NameValuePair[0]);
-        final var request = HttpRequest.newBuilder()
-            .uri(getURI(
-                String.format("%s/candles", market),
-                Stream.concat(
-                        Stream.of(createParameter("interval", interval.serialize())),
-                        Arrays.stream(params))
-                    .toArray(NameValuePair[]::new)))
+        final var request = getRequestBuilder(getURI(
+            String.format("%s/candles", market),
+            Stream.concat(
+                    Stream.of(createParameter("interval", interval.serialize())),
+                    Arrays.stream(params))
+                .toArray(NameValuePair[]::new)))
             .GET()
             .build();
 
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
-    private HttpRequest.Builder createRequestBuilder(final URI uri) {
-        return HttpRequest.newBuilder().timeout(Duration.ofMillis(getWindowTimeFromConfig()));
+    public Single<List<Candle24h>> getCandle24h() {
+        final var request = getRequestBuilder(getURI("ticker/24h"))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
-    private int getWindowTimeFromConfig() {
+    public Single<Candle24h> getCandle24h(final String market) {
+        final var request = getRequestBuilder(getURI("ticker/24h", createParameter("market", market)))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(request, Candle24h.class)));
+    }
+
+    private HttpRequest.Builder getRequestBuilder(final URI uri) {
+        return HttpRequest.newBuilder()
+            .uri(uri)
+            .timeout(Duration.ofSeconds(10));
+    }
+
+    private int getWindowAccessTime() {
         return apiClientConfig.flatMap(ApiClientConfig::getAccessWindowTime).orElse(10000);
     }
 
@@ -237,7 +244,7 @@ public class ReactiveApiClient {
         final var credentials = apiClientConfig.flatMap(ApiClientConfig::getCredentials)
             .orElseThrow(() -> new RuntimeException("Credentials are required for authenticated requests")); // TODO: custom exception
 
-        final var windowTime = getWindowTimeFromConfig();
+        final var windowTime = getWindowAccessTime();
 
         try {
             // TODO: check uri().getPath()
@@ -249,13 +256,13 @@ public class ReactiveApiClient {
                 credentials.apiSecret()
             );
 
-            final var builder = HttpRequest.newBuilder(request, (s1, s2) -> true)
+            return HttpRequest.newBuilder(request, (s1, s2) -> true)
                 .header(HEADER_ACCESS_KEY, credentials.apiKey())
                 .header(HEADER_ACCESS_SIGNATURE, signature)
                 .header(HEADER_ACCESS_TIMESTAMP, String.valueOf(timestamp))
-                .header(HEADER_ACCESS_WINDOW, String.valueOf(windowTime));
-
-            return builder.build();
+                .header(HEADER_ACCESS_WINDOW, String.valueOf(windowTime))
+                .timeout(Duration.ofMillis(windowTime))
+                .build();
         } catch (final JsonProcessingException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }

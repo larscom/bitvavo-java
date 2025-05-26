@@ -27,7 +27,7 @@ public interface Fill extends MessageIn {
     UUID getFillId();
 
     /// The current timestamp in milliseconds since 1 Jan 1970.
-    long getTimestamp();
+    Long getTimestamp();
 
     /// The amount in base currency for which the trade has been made.
     BigDecimal getAmount();

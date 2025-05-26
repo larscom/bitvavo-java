@@ -45,7 +45,7 @@ class ExampleHttp {
             System.out.println(tickerBook);
         });
 
-        client.getCandles("ETH-EUR", Interval.M1).subscribe((candles, throwable) -> {
+        client.getCandle24h("ETH-EUR").subscribe((candles, throwable) -> {
             System.out.println(candles);
         });
 

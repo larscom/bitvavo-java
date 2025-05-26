@@ -14,7 +14,7 @@ import java.util.Optional;
 @JsonDeserialize(as = ImmutableTickerBook.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface TickerBook {
-    /// The market for which you requested the current best bid and ask information(e.g. "ETH-EUR").
+    /// The market for which you requested the current best bid and ask information (e.g. "ETH-EUR").
     String getMarket();
 
     /// The highest buy order in the quote currency for the market currently available on Bitvavo.
