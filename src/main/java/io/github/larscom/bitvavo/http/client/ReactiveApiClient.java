@@ -114,7 +114,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
 
         final var builder = HttpClient.newBuilder()
             .executor(Executors.newVirtualThreadPerTaskExecutor())
-            .connectTimeout(Duration.ofSeconds(10));
+            .connectTimeout(Duration.ofSeconds(30));
 
         proxyAddress.map(ProxySelector::of).ifPresent(builder::proxy);
 
