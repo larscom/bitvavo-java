@@ -22,13 +22,13 @@ public interface Asset {
     String getName();
 
     /// The number of decimal digits for this asset.
-    int getDecimals();
+    Integer getDecimals();
 
     /// The fee for depositing the asset.
     BigDecimal getDepositFee();
 
     /// The minimum number of network confirmations to credit the asset to your account.
-    int getDepositConfirmations();
+    Integer getDepositConfirmations();
 
     /// The status of the asset being deposited.
     DepositStatus getDepositStatus();

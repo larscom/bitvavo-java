@@ -13,7 +13,7 @@ import org.immutables.value.Value;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface BitvavoError {
     /// Complete list of error codes: https://docs.bitvavo.com/docs/errors/
-    int getErrorCode();
+    Integer getErrorCode();
 
     /// A descriptive error message
     @JsonProperty("error")

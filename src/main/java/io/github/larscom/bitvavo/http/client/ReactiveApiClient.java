@@ -25,6 +25,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIBuilder;
 
+import java.net.InetSocketAddress;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,12 +39,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-public class ReactiveApiClient {
+public class ReactiveApiClient implements PublicApi, PrivateApi {
+    private static final int DEFAULT_WINDOW_ACCESS_TIME = 10_000;
     private static final String BASE_URL = "https://api.bitvavo.com/v2";
     private static final ObjectMapper objectMapper = ObjectMapperProvider.getObjectMapper();
 
@@ -56,21 +59,56 @@ public class ReactiveApiClient {
     private static final String HEADER_ACCESS_TIMESTAMP = "Bitvavo-Access-Timestamp";
     private static final String HEADER_ACCESS_WINDOW = "Bitvavo-Access-Window";
 
-    private final Optional<ApiClientConfig> apiClientConfig;
+    private final Optional<Credentials> credentials;
+    private final int windowAccesTime;
 
     private final BehaviorSubject<RateLimitQuota> rateLimitQuota;
     private final HttpClient httpClient;
 
-    public ReactiveApiClient() {
-        this(Optional.empty());
+    public static PublicApi newPublic() {
+        return new ReactiveApiClient(Optional.empty(), Optional.empty(), DEFAULT_WINDOW_ACCESS_TIME);
     }
 
-    public ReactiveApiClient(@NonNull final ApiClientConfig apiClientConfig) {
-        this(Optional.of(apiClientConfig));
+    public static PublicApi newPublic(@NonNull final InetSocketAddress proxyAddress) {
+        Objects.requireNonNull(proxyAddress);
+        return new ReactiveApiClient(Optional.empty(), Optional.of(proxyAddress), DEFAULT_WINDOW_ACCESS_TIME);
     }
 
-    private ReactiveApiClient(final Optional<ApiClientConfig> apiClientConfig) {
-        this.apiClientConfig = apiClientConfig;
+    public static PrivateApi newPrivate(@NonNull final Credentials credentials) {
+        Objects.requireNonNull(credentials);
+        return new ReactiveApiClient(Optional.of(credentials), Optional.empty(), DEFAULT_WINDOW_ACCESS_TIME);
+    }
+
+    public static PrivateApi newPrivate(@NonNull final Credentials credentials, final int windowAccesTime) {
+        Objects.requireNonNull(credentials);
+        return new ReactiveApiClient(Optional.of(credentials), Optional.empty(), windowAccesTime);
+    }
+
+    public static PrivateApi newPrivate(
+        @NonNull final Credentials credentials,
+        @NonNull final InetSocketAddress proxyAddress
+    ) {
+        Objects.requireNonNull(credentials);
+        Objects.requireNonNull(proxyAddress);
+        return new ReactiveApiClient(Optional.of(credentials), Optional.of(proxyAddress), DEFAULT_WINDOW_ACCESS_TIME);
+    }
+
+    public static PrivateApi newPrivate(
+        @NonNull final Credentials credentials,
+        @NonNull final InetSocketAddress proxyAddress,
+        final int windowAccesTime) {
+        Objects.requireNonNull(credentials);
+        Objects.requireNonNull(proxyAddress);
+        return new ReactiveApiClient(Optional.of(credentials), Optional.of(proxyAddress), windowAccesTime);
+    }
+
+    private ReactiveApiClient(
+        final Optional<Credentials> credentials,
+        final Optional<InetSocketAddress> proxyAddress,
+        final int windowAccesTime
+    ) {
+        this.windowAccesTime = windowAccesTime;
+        this.credentials = credentials;
 
         rateLimitQuota = BehaviorSubject.createDefault(RateLimitQuota.DEFAULT);
 
@@ -78,9 +116,7 @@ public class ReactiveApiClient {
             .executor(Executors.newVirtualThreadPerTaskExecutor())
             .connectTimeout(Duration.ofSeconds(10));
 
-        apiClientConfig.flatMap(ApiClientConfig::getProxyAddress)
-            .map(ProxySelector::of)
-            .ifPresent(builder::proxy);
+        proxyAddress.map(ProxySelector::of).ifPresent(builder::proxy);
 
         httpClient = builder.build();
     }
@@ -232,19 +268,12 @@ public class ReactiveApiClient {
             .timeout(Duration.ofSeconds(10));
     }
 
-    private int getWindowAccessTime() {
-        return apiClientConfig.flatMap(ApiClientConfig::getAccessWindowTime).orElse(10000);
-    }
-
     private <T> HttpRequest withAuthentication(
         final HttpRequest request,
         final T body
     ) {
         final var timestamp = Instant.now().toEpochMilli();
-        final var credentials = apiClientConfig.flatMap(ApiClientConfig::getCredentials)
-            .orElseThrow(() -> new RuntimeException("Credentials are required for authenticated requests")); // TODO: custom exception
-
-        final var windowTime = getWindowAccessTime();
+        final var c = credentials.orElseThrow(() -> new IllegalStateException("Credentials should be present"));
 
         try {
             // TODO: check uri().getPath()
@@ -253,15 +282,15 @@ public class ReactiveApiClient {
                 request.uri().getPath(),
                 Optional.of(objectMapper.writeValueAsBytes(body)),
                 timestamp,
-                credentials.apiSecret()
+                c.apiSecret()
             );
 
             return HttpRequest.newBuilder(request, (s1, s2) -> true)
-                .header(HEADER_ACCESS_KEY, credentials.apiKey())
+                .header(HEADER_ACCESS_KEY, c.apiKey())
                 .header(HEADER_ACCESS_SIGNATURE, signature)
                 .header(HEADER_ACCESS_TIMESTAMP, String.valueOf(timestamp))
-                .header(HEADER_ACCESS_WINDOW, String.valueOf(windowTime))
-                .timeout(Duration.ofMillis(windowTime))
+                .header(HEADER_ACCESS_WINDOW, String.valueOf(windowAccesTime))
+                .timeout(Duration.ofMillis(windowAccesTime))
                 .build();
         } catch (final JsonProcessingException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);

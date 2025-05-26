@@ -27,7 +27,7 @@ public interface Market {
     String getQuote();
 
     /// The number of digits allowed in the price when the order was created.
-    int getPricePrecision();
+    Integer getPricePrecision();
 
     /// The minimum amount of base currency for an order in the specified market.
     BigDecimal getMinOrderInBaseAsset();

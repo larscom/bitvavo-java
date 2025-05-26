@@ -12,6 +12,7 @@ import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodySubscriber;
 import java.net.http.HttpResponse.BodySubscribers;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Optional;
 
 public class JsonBodyHandler<T> implements BodyHandler<T> {
@@ -23,6 +24,8 @@ public class JsonBodyHandler<T> implements BodyHandler<T> {
 
     public JsonBodyHandler(@NonNull final Class<T> clazz,
                            @NonNull final ObjectMapper objectMapper) {
+        Objects.requireNonNull(clazz);
+        Objects.requireNonNull(objectMapper);
         this.clazz = Optional.of(clazz);
         this.typeReference = Optional.empty();
         this.objectMapper = objectMapper;
@@ -30,6 +33,8 @@ public class JsonBodyHandler<T> implements BodyHandler<T> {
 
     public JsonBodyHandler(@NonNull final TypeReference<T> typeReference,
                            @NonNull final ObjectMapper objectMapper) {
+        Objects.requireNonNull(typeReference);
+        Objects.requireNonNull(objectMapper);
         this.clazz = Optional.empty();
         this.typeReference = Optional.of(typeReference);
         this.objectMapper = objectMapper;

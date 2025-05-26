@@ -1,13 +1,11 @@
 package io.github.larscom.bitvavo;
 
-import io.github.larscom.bitvavo.http.candle.Interval;
-import io.github.larscom.bitvavo.http.client.ApiClientConfig;
+import io.github.larscom.bitvavo.http.client.Credentials;
 import io.github.larscom.bitvavo.http.client.ReactiveApiClient;
 
 class ExampleHttp {
     public static void main(final String[] args) throws InterruptedException {
-        final var config = ApiClientConfig.builder().build();
-        final var client = new ReactiveApiClient(config);
+        final var client = ReactiveApiClient.newPrivate(new Credentials("bitvavo", "bitvavo"));
 
         client.getTime().subscribe((time, throwable) -> {
             System.out.println(time);

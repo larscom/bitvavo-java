@@ -46,7 +46,7 @@ class WebSocket extends WebSocketClient {
         put(MessageInEvent.FILL, Fill.class);
     }};
 
-    public WebSocket(final ObjectMapper objectMapper)  {
+    public WebSocket(final ObjectMapper objectMapper) {
         super(createURI("wss://ws.bitvavo.com/v2"));
         this.objectMapper = objectMapper;
         this.closeLatch = new CountDownLatch(1);
@@ -112,7 +112,7 @@ class WebSocket extends WebSocketClient {
     public void onOpen(final ServerHandshake serverHandshake) {
         if (serverHandshake.getHttpStatus() != 101) {
             final var error = BitvavoError.builder()
-                .errorCode(serverHandshake.getHttpStatus())
+                .errorCode((int) serverHandshake.getHttpStatus())
                 .errorMessage(serverHandshake.getHttpStatusMessage())
                 .build();
 
