@@ -6,17 +6,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.bitvavo.crypto.CryptoUtils;
 import io.github.larscom.bitvavo.http.account.Credentials;
 import io.github.larscom.bitvavo.http.account.TransactionHistory;
+import io.github.larscom.bitvavo.http.account.TransactionHistoryParams;
 import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.candle.Candle;
 import io.github.larscom.bitvavo.http.candle.Candle24h;
-import io.github.larscom.bitvavo.http.candle.CandleQueryParams;
+import io.github.larscom.bitvavo.http.candle.CandleParams;
 import io.github.larscom.bitvavo.http.candle.Interval;
 import io.github.larscom.bitvavo.http.market.Market;
 import io.github.larscom.bitvavo.http.ticker.TickerBook;
 import io.github.larscom.bitvavo.http.ticker.TickerPrice;
 import io.github.larscom.bitvavo.http.trade.Trade;
-import io.github.larscom.bitvavo.http.trade.TradeQueryParams;
+import io.github.larscom.bitvavo.http.trade.TradeParams;
 import io.github.larscom.bitvavo.json.ObjectMapperProvider;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
@@ -181,8 +182,10 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return getTrades(market, null);
     }
 
-    public Single<List<Trade>> getTrades(final String market, final TradeQueryParams queryParams) {
-        final var params = Optional.ofNullable(queryParams).map(TradeQueryParams::getPairs).orElseGet(() -> new NameValuePair[0]);
+    public Single<List<Trade>> getTrades(final String market, final TradeParams tradeParams) {
+        final var params = Optional.ofNullable(tradeParams).map(TradeParams::getPairs)
+            .orElseGet(() -> new NameValuePair[0]);
+
         final var request = getRequestBuilder(getURI(String.format("%s/trades", market), params))
             .GET()
             .build();
@@ -226,8 +229,10 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return getCandles(market, interval, null);
     }
 
-    public Single<List<Candle>> getCandles(final String market, final Interval interval, final CandleQueryParams queryParams) {
-        final var params = Optional.ofNullable(queryParams).map(CandleQueryParams::getPairs).orElseGet(() -> new NameValuePair[0]);
+    public Single<List<Candle>> getCandles(final String market, final Interval interval, final CandleParams candleParams) {
+        final var params = Optional.ofNullable(candleParams).map(CandleParams::getPairs)
+            .orElseGet(() -> new NameValuePair[0]);
+
         final var request = getRequestBuilder(getURI(
             String.format("%s/candles", market),
             Stream.concat(
@@ -258,6 +263,17 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
 
     public Single<TransactionHistory> getTransactionHistory() {
         final var request = getRequestBuilder(getURI("account/history"))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), TransactionHistory.class)));
+    }
+
+    public Single<TransactionHistory> getTransactionHistory(final TransactionHistoryParams transactionHistoryParams) {
+        final var params = Optional.ofNullable(transactionHistoryParams).map(TransactionHistoryParams::getPairs)
+            .orElseGet(() -> new NameValuePair[0]);
+
+        final var request = getRequestBuilder(getURI("account/history", params))
             .GET()
             .build();
 

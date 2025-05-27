@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Value.Immutable
 @Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
-public interface CandleQueryParams {
+public interface CandleParams {
     /// Possible values: >= 1 and <= 1440
     ///
     /// The maximum number of candles to return.
@@ -49,6 +49,6 @@ public interface CandleQueryParams {
         return new Builder();
     }
 
-    class Builder extends ImmutableCandleQueryParams.Builder {
+    class Builder extends ImmutableCandleParams.Builder {
     }
 }

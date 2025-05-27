@@ -4,13 +4,13 @@ import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.candle.Candle;
 import io.github.larscom.bitvavo.http.candle.Candle24h;
-import io.github.larscom.bitvavo.http.candle.CandleQueryParams;
+import io.github.larscom.bitvavo.http.candle.CandleParams;
 import io.github.larscom.bitvavo.http.candle.Interval;
 import io.github.larscom.bitvavo.http.market.Market;
 import io.github.larscom.bitvavo.http.ticker.TickerBook;
 import io.github.larscom.bitvavo.http.ticker.TickerPrice;
 import io.github.larscom.bitvavo.http.trade.Trade;
-import io.github.larscom.bitvavo.http.trade.TradeQueryParams;
+import io.github.larscom.bitvavo.http.trade.TradeParams;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
@@ -66,7 +66,7 @@ public interface PublicApi {
     /// Returns the list of trades for specified market and time period made by all Bitvavo users.
     ///
     /// Rate limit weight points: 5
-    Single<List<Trade>> getTrades(String market, TradeQueryParams queryParams);
+    Single<List<Trade>> getTrades(String market, TradeParams tradeParams);
 
     /// Returns prices of the latest trades on Bitvavo for all markets.
     ///
@@ -103,7 +103,7 @@ public interface PublicApi {
     /// When no trades occur you see a gap in data flow, zero trades are represented by zero candlesticks.
     ///
     /// Rate limit weight points: 1
-    Single<List<Candle>> getCandles(String market, Interval interval, CandleQueryParams queryParams);
+    Single<List<Candle>> getCandles(String market, Interval interval, CandleParams candleParams);
 
     /// Returns the OHLCV data about trades and orders for all markets on Bitvavo during the latest 24 hours.
     ///

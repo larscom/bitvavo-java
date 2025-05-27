@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Value.Immutable
 @Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
-public interface TradeQueryParams {
+public interface TradeParams {
     /// Possible values: >= 1 and <= 1000
     ///
     /// The maximum number of trades to return.
@@ -65,6 +65,6 @@ public interface TradeQueryParams {
         return new Builder();
     }
 
-    class Builder extends ImmutableTradeQueryParams.Builder {
+    class Builder extends ImmutableTradeParams.Builder {
     }
 }
