@@ -38,31 +38,80 @@ public interface PublicApi {
     /// Rate limit weight points: 1
     Single<Market> getMarket(String market);
 
+    /// Returns the information about the specified assets.
+    ///
+    /// Rate limit weight points: 1
     Single<List<Asset>> getAssets();
 
+    /// Returns the information about the specified asset based on symbol.
+    ///
+    /// Rate limit weight points: 1
     Single<Asset> getAsset(String symbol);
 
+    /// Returns the list of all bids and asks for the specified market, sorted by price.
+    ///
+    /// Rate limit weight points: 1
     Single<Book> getOrderBook(String market);
 
+    /// Returns the list of all bids and asks for the specified market with specific depth, sorted by price.
+    ///
+    /// Rate limit weight points: 1
     Single<Book> getOrderBook(String market, int depth);
 
+    /// Returns the list of trades for specified market and time period made by all Bitvavo users.
+    ///
+    /// Rate limit weight points: 5
     Single<List<Trade>> getTrades(String market);
 
+    /// Returns the list of trades for specified market and time period made by all Bitvavo users.
+    ///
+    /// Rate limit weight points: 5
     Single<List<Trade>> getTrades(String market, TradeQueryParams queryParams);
 
+    /// Returns prices of the latest trades on Bitvavo for all markets.
+    ///
+    /// Rate limit weight points: 1
     Single<List<TickerPrice>> getTickerPrices();
 
+    /// Returns prices of the latest trades on Bitvavo for a single market.
+    ///
+    /// Rate limit weight points: 1
     Single<TickerPrice> getTickerPrice(String market);
 
+    /// Returns the highest buy and the lowest sell prices currently available for all markets in the Bitvavo order book.
+    ///
+    /// Rate limit weight points: 1
     Single<List<TickerBook>> getTickerBooks();
 
+    /// Returns the highest buy and the lowest sell prices currently available for a single market in the Bitvavo order book.
+    /// Rate limit weight points: 1
     Single<TickerBook> getTickerBook(String market);
 
+    /// Returns the OHLCV market data used to create candlestick charts.
+    ///
+    /// Candlestick data is always returned in chronological data from newest to oldest.
+    /// Data is returned when trades are made in the interval represented by that candlestick.
+    /// When no trades occur you see a gap in data flow, zero trades are represented by zero candlesticks.
+    ///
+    /// Rate limit weight points: 1
     Single<List<Candle>> getCandles(String market, Interval interval);
 
+    /// Returns the OHLCV market data used to create candlestick charts.
+    ///
+    /// Candlestick data is always returned in chronological data from newest to oldest.
+    /// Data is returned when trades are made in the interval represented by that candlestick.
+    /// When no trades occur you see a gap in data flow, zero trades are represented by zero candlesticks.
+    ///
+    /// Rate limit weight points: 1
     Single<List<Candle>> getCandles(String market, Interval interval, CandleQueryParams queryParams);
 
+    /// Returns the OHLCV data about trades and orders for all markets on Bitvavo during the latest 24 hours.
+    ///
+    /// Rate limit weight points: 25
     Single<List<Candle24h>> getCandle24h();
 
+    /// Returns the OHLCV data about trades and orders for a single market on Bitvavo during the latest 24 hours.
+    ///
+    /// Rate limit weight points: 1
     Single<Candle24h> getCandle24h(String market);
 }
