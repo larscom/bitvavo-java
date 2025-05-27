@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.bitvavo.crypto.CryptoUtils;
+import io.github.larscom.bitvavo.http.account.Credentials;
 import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.candle.Candle;
@@ -39,7 +40,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -70,17 +70,14 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
     }
 
     public static PublicApi newPublic(@NonNull final InetSocketAddress proxyAddress) {
-        Objects.requireNonNull(proxyAddress);
         return new ReactiveApiClient(Optional.empty(), Optional.of(proxyAddress), DEFAULT_WINDOW_ACCESS_TIME);
     }
 
     public static PrivateApi newPrivate(@NonNull final Credentials credentials) {
-        Objects.requireNonNull(credentials);
         return new ReactiveApiClient(Optional.of(credentials), Optional.empty(), DEFAULT_WINDOW_ACCESS_TIME);
     }
 
     public static PrivateApi newPrivate(@NonNull final Credentials credentials, final int windowAccesTime) {
-        Objects.requireNonNull(credentials);
         return new ReactiveApiClient(Optional.of(credentials), Optional.empty(), windowAccesTime);
     }
 
@@ -88,8 +85,6 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         @NonNull final Credentials credentials,
         @NonNull final InetSocketAddress proxyAddress
     ) {
-        Objects.requireNonNull(credentials);
-        Objects.requireNonNull(proxyAddress);
         return new ReactiveApiClient(Optional.of(credentials), Optional.of(proxyAddress), DEFAULT_WINDOW_ACCESS_TIME);
     }
 
@@ -97,8 +92,6 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         @NonNull final Credentials credentials,
         @NonNull final InetSocketAddress proxyAddress,
         final int windowAccesTime) {
-        Objects.requireNonNull(credentials);
-        Objects.requireNonNull(proxyAddress);
         return new ReactiveApiClient(Optional.of(credentials), Optional.of(proxyAddress), windowAccesTime);
     }
 

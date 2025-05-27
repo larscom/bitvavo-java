@@ -1,11 +1,11 @@
 package io.github.larscom.bitvavo;
 
-import io.github.larscom.bitvavo.http.client.Credentials;
+import io.github.larscom.bitvavo.http.account.Credentials;
 import io.github.larscom.bitvavo.http.client.ReactiveApiClient;
 
 class ExampleHttp {
     public static void main(final String[] args) throws InterruptedException {
-        final var client = ReactiveApiClient.newPrivate(new Credentials("bitvavo", "bitvavo"));
+        final var client = ReactiveApiClient.newPrivate(new Credentials(System.getenv("API_KEY"), System.getenv("API_SECRET")));
 
         client.getTime().subscribe((time, throwable) -> {
             System.out.println(time);

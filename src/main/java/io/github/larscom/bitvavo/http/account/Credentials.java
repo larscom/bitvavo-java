@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.http.client;
+package io.github.larscom.bitvavo.http.account;
 
 /// Can be created at: [Bitvavo](https://account.bitvavo.com/user/api)
 /// TODO: remove duplicates
