@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.bitvavo.crypto.CryptoUtils;
 import io.github.larscom.bitvavo.http.account.Credentials;
+import io.github.larscom.bitvavo.http.account.TransactionHistory;
 import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.candle.Candle;
@@ -255,31 +256,50 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, Candle24h.class)));
     }
 
+    public Single<TransactionHistory> getTransactionHistory() {
+        final var request = getRequestBuilder(getURI("account/history"))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), TransactionHistory.class)));
+    }
+
     private HttpRequest.Builder getRequestBuilder(final URI uri) {
         return HttpRequest.newBuilder()
             .uri(uri)
             .timeout(Duration.ofSeconds(10));
     }
 
+    private HttpRequest withAuthentication(final HttpRequest request) {
+        return withAuthentication(request, Optional.empty());
+    }
+
     private <T> HttpRequest withAuthentication(
         final HttpRequest request,
-        final T body
+        final Optional<T> payload
     ) {
         final var timestamp = Instant.now().toEpochMilli();
-        final var c = credentials.orElseThrow(() -> new IllegalStateException("Credentials should be present"));
+        final var creds = credentials.orElseThrow(() -> new IllegalStateException("Credentials should be present"));
 
         try {
-            // TODO: check uri().getPath()
+            final Optional<byte[]> body;
+            if (payload.isPresent()) {
+                body = Optional.of(objectMapper.writeValueAsBytes(payload));
+            } else {
+                body = Optional.empty();
+            }
+
+            final var relativePath = request.uri().toString().replaceAll(BASE_URL, "");
             final var signature = CryptoUtils.createSignature(
                 request.method(),
-                request.uri().getPath(),
-                Optional.of(objectMapper.writeValueAsBytes(body)),
+                relativePath,
+                body,
                 timestamp,
-                c.apiSecret()
+                creds.apiSecret()
             );
 
             return HttpRequest.newBuilder(request, (s1, s2) -> true)
-                .header(HEADER_ACCESS_KEY, c.apiKey())
+                .header(HEADER_ACCESS_KEY, creds.apiKey())
                 .header(HEADER_ACCESS_SIGNATURE, signature)
                 .header(HEADER_ACCESS_TIMESTAMP, String.valueOf(timestamp))
                 .header(HEADER_ACCESS_WINDOW, String.valueOf(windowAccesTime))
