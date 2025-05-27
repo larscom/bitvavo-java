@@ -17,9 +17,12 @@ public interface TransactionHistory {
     @JsonProperty("items")
     List<Transaction> getTransactions();
 
+    /// The current page number.
     Integer getCurrentPage();
 
+    /// The total number of returned pages.
     Integer getTotalPages();
 
+    /// The maximum number of transactions per page.
     Integer getMaxItems();
 }
