@@ -17,14 +17,25 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 
 public interface PublicApi {
+    /// Returns the current rate limit quota.
     RateLimitQuota getCurrentRateLimitQuota();
 
+    /// Returns a stream of rate limit quota, a value is emitted everytime the quota updates.
     Observable<RateLimitQuota> getRateLimitQuota();
 
+    /// Returns the current Unix timestamp of Bitvavo servers.
+    ///
+    /// Rate limit weight points: 1
     Single<Long> getTime();
 
+    /// Returns the information about all markets on Bitvavo.
+    ///
+    /// Rate limit weight points: 1
     Single<List<Market>> getMarkets();
 
+    /// Returns the information about one market on Bitvavo.
+    ///
+    /// Rate limit weight points: 1
     Single<Market> getMarket(String market);
 
     Single<List<Asset>> getAssets();
