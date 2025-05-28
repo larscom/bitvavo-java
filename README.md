@@ -43,6 +43,7 @@ Here's a quick example to get you started:
 ```java
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
+import io.github.larscom.bitvavo.websocket.client.PublicApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Set;
@@ -50,7 +51,8 @@ import java.util.Set;
 class Main {
 
   public static void main(final String[] args) throws InterruptedException {
-    final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
+    // creates a public client, only contains public endpoints
+    final PublicApi client = ReactiveWebSocketClient.newPublic();
 
     final Channel channel = Channel.builder()
             .name(ChannelName.TICKER)
@@ -83,6 +85,7 @@ in [Bitvavo](https://account.bitvavo.com/user/api)
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.account.Credentials;
+import io.github.larscom.bitvavo.websocket.client.PrivateApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Set;
@@ -90,10 +93,11 @@ import java.util.Set;
 class Main {
 
   public static void main(final String[] args) throws InterruptedException {
+    // create credentials
     final Credentials credentials = new Credentials("MY_API_KEY", "MY_API_SECRET");
 
-    // pass the credentials
-    final ReactiveWebSocketClient client = new ReactiveWebSocketClient(credentials);
+    // create a private client (it contains all public endpoints as well)
+    final PrivateApi client = ReactiveWebSocketClient.newPrivate(credentials);
 
     final Channel channel = Channel.builder()
             .name(ChannelName.ACCOUNT)
@@ -105,8 +109,9 @@ class Main {
     // receive errors, mostly for debug purposes
     client.errors().subscribe(System.out::println);
 
-    // receive data
+    // receive private data
     client.orders().subscribe(System.out::println);
+    client.fills().subscribe(System.out::println);
 
     Thread.currentThread().join();
   }
@@ -115,11 +120,12 @@ class Main {
 
 ### Proxy
 
-If you need a proxy you can simply pass a `java.net.Proxy` object to the `ReactiveWebSocketClient` constructor.
+If you need a proxy you can simply pass a `java.net.Proxy` object.
 
 ```java
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
+import io.github.larscom.bitvavo.websocket.client.PublicApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.net.InetSocketAddress;
@@ -132,7 +138,7 @@ class Main {
     final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.example.com", 8080));
 
     // pass the proxy
-    final ReactiveWebSocketClient client = new ReactiveWebSocketClient(proxy);
+    final PublicApi client = ReactiveWebSocketClient.newPublic(proxy);
 
     final Channel channel = Channel.builder()
             .name(ChannelName.TICKER)
@@ -161,6 +167,7 @@ If you want to handle multiple events in a single stream you can use `instanceof
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.book.Book;
+import io.github.larscom.bitvavo.websocket.client.PublicApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 import io.github.larscom.bitvavo.websocket.ticker.Ticker;
 
@@ -169,7 +176,7 @@ import java.util.Set;
 class Main {
 
   public static void main(final String[] args) throws InterruptedException {
-    final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
+    final PublicApi client = ReactiveWebSocketClient.newPublic();
 
     final Set<Channel> channels = Set.of(
             Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR")).build(),

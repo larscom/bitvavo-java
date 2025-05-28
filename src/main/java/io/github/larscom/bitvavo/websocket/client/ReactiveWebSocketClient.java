@@ -34,27 +34,27 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
-public class ReactiveWebSocketClient {
+public class ReactiveWebSocketClient implements PrivateApi, PublicApi {
     private volatile WebSocket webSocket;
     private volatile boolean running;
 
     private final BehaviorSubject<Either<MessageIn, BitvavoError>> incoming;
     private final Flowable<Either<MessageIn, BitvavoError>> outgoing;
 
-    public ReactiveWebSocketClient() {
-        this(Optional.empty(), Optional.empty());
+    public static PublicApi newPublic() {
+        return new ReactiveWebSocketClient(Optional.empty(), Optional.empty());
     }
 
-    public ReactiveWebSocketClient(@NonNull final Proxy proxy) {
-        this(Optional.empty(), Optional.of(proxy));
+    public static PublicApi newPublic(@NonNull final Proxy proxy) {
+        return new ReactiveWebSocketClient(Optional.empty(), Optional.of(proxy));
     }
 
-    public ReactiveWebSocketClient(@NonNull final Credentials credentials) {
-        this(Optional.of(credentials), Optional.empty());
+    public static PrivateApi newPrivate(@NonNull final Credentials credentials) {
+        return new ReactiveWebSocketClient(Optional.of(credentials), Optional.empty());
     }
 
-    public ReactiveWebSocketClient(@NonNull final Credentials credentials, @NonNull final Proxy proxy) {
-        this(Optional.of(credentials), Optional.of(proxy));
+    public static PrivateApi newPrivate(@NonNull final Credentials credentials, @NonNull final Proxy proxy) {
+        return new ReactiveWebSocketClient(Optional.of(credentials), Optional.of(proxy));
     }
 
     private ReactiveWebSocketClient(final Optional<Credentials> credentials, final Optional<Proxy> proxy) {
