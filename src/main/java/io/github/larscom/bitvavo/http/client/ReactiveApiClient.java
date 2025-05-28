@@ -262,11 +262,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
     }
 
     public Single<TransactionHistory> getTransactionHistory() {
-        final var request = getRequestBuilder(getURI("account/history"))
-            .GET()
-            .build();
-
-        return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), TransactionHistory.class)));
+        return getTransactionHistory(null);
     }
 
     public Single<TransactionHistory> getTransactionHistory(final TransactionHistoryParams transactionHistoryParams) {
