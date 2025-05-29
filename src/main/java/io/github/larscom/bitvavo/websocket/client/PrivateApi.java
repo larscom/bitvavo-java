@@ -9,7 +9,7 @@ public interface PrivateApi extends PublicApi {
     ///
     /// <pre>
     /// {@code
-    /// final PrivateApi client = ReactiveApiClient.newPrivate(new Credentials("API_KEY", "API_SECRET"));
+    /// final PrivateApi client = ReactiveWebSocketClient.newPrivate(new Credentials("API_KEY", "API_SECRET"));
     ///
     /// final Set<Channel> channels = Set.of(
     ///     Channel.builder().name(ChannelName.ACCOUNT).markets(Set.of("ETH-EUR")).build()
@@ -27,7 +27,7 @@ public interface PrivateApi extends PublicApi {
     ///
     /// <pre>
     /// {@code
-    /// final PrivateApi client = ReactiveApiClient.newPrivate(new Credentials("API_KEY", "API_SECRET"));
+    /// final PrivateApi client = ReactiveWebSocketClient.newPrivate(new Credentials("API_KEY", "API_SECRET"));
     ///
     /// final Set<Channel> channels = Set.of(
     ///     Channel.builder().name(ChannelName.ACCOUNT).markets(Set.of("ETH-EUR")).build()
