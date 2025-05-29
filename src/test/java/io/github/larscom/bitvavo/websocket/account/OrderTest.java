@@ -1,6 +1,7 @@
 package io.github.larscom.bitvavo.websocket.account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.larscom.bitvavo.account.OrderType;
 import io.github.larscom.bitvavo.json.ObjectMapperProvider;
 import io.github.larscom.bitvavo.websocket.message.MessageInEvent;
 import io.github.larscom.bitvavo.websocket.Side;
