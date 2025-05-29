@@ -1,11 +1,10 @@
-package io.github.larscom.bitvavo.http.candle;
+package io.github.larscom.bitvavo.candle;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.Arrays;
 
-// TODO: remove duplicate enums
 public enum Interval {
     M1("1m"),
     M5("5m"),

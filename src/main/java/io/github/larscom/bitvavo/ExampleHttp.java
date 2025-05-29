@@ -1,6 +1,6 @@
 package io.github.larscom.bitvavo;
 
-import io.github.larscom.bitvavo.http.account.Credentials;
+import io.github.larscom.bitvavo.account.Credentials;
 import io.github.larscom.bitvavo.http.client.ReactiveApiClient;
 
 

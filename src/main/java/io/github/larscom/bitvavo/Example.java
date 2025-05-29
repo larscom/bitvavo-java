@@ -1,7 +1,7 @@
 package io.github.larscom.bitvavo;
 
-import io.github.larscom.bitvavo.websocket.account.Credentials;
-import io.github.larscom.bitvavo.websocket.candle.Interval;
+import io.github.larscom.bitvavo.account.Credentials;
+import io.github.larscom.bitvavo.candle.Interval;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.client.PrivateApi;

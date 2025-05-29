@@ -1,11 +1,11 @@
 package io.github.larscom.bitvavo.http.client;
 
+import io.github.larscom.bitvavo.candle.Interval;
 import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.candle.Candle;
 import io.github.larscom.bitvavo.http.candle.Candle24h;
 import io.github.larscom.bitvavo.http.candle.CandleParams;
-import io.github.larscom.bitvavo.http.candle.Interval;
 import io.github.larscom.bitvavo.http.market.Market;
 import io.github.larscom.bitvavo.http.ticker.TickerBook;
 import io.github.larscom.bitvavo.http.ticker.TickerPrice;

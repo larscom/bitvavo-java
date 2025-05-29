@@ -84,7 +84,7 @@ in [Bitvavo](https://account.bitvavo.com/user/api)
 ```java
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
-import io.github.larscom.bitvavo.websocket.account.Credentials;
+import io.github.larscom.bitvavo.account.Credentials;
 import io.github.larscom.bitvavo.websocket.client.PrivateApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 

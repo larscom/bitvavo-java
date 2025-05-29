@@ -3,6 +3,7 @@ package io.github.larscom.bitvavo.websocket.candle;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.github.larscom.bitvavo.candle.Interval;
 import io.github.larscom.bitvavo.websocket.message.MessageIn;
 import org.immutables.value.Value;
 

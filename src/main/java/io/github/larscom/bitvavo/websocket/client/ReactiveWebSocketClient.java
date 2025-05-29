@@ -1,11 +1,11 @@
 package io.github.larscom.bitvavo.websocket.client;
 
+import io.github.larscom.bitvavo.account.Credentials;
 import io.github.larscom.bitvavo.crypto.CryptoUtils;
 import io.github.larscom.bitvavo.error.BitvavoError;
 import io.github.larscom.bitvavo.json.ObjectMapperProvider;
 import io.github.larscom.bitvavo.websocket.Trade;
 import io.github.larscom.bitvavo.websocket.account.Authentication;
-import io.github.larscom.bitvavo.websocket.account.Credentials;
 import io.github.larscom.bitvavo.websocket.account.Fill;
 import io.github.larscom.bitvavo.websocket.account.Order;
 import io.github.larscom.bitvavo.websocket.book.Book;
