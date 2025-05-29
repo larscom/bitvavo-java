@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.bitvavo.account.Credentials;
 import io.github.larscom.bitvavo.candle.Interval;
 import io.github.larscom.bitvavo.crypto.CryptoUtils;
+import io.github.larscom.bitvavo.http.account.MarketFee;
+import io.github.larscom.bitvavo.http.account.MarketFeeParams;
 import io.github.larscom.bitvavo.http.account.TransactionHistory;
 import io.github.larscom.bitvavo.http.account.TransactionHistoryParams;
 import io.github.larscom.bitvavo.http.asset.Asset;
@@ -274,6 +276,21 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
             .build();
 
         return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), TransactionHistory.class)));
+    }
+
+    public Single<MarketFee> getMarketFee() {
+        return getMarketFee(null);
+    }
+
+    public Single<MarketFee> getMarketFee(final MarketFeeParams marketFeeParams) {
+        final var params = Optional.ofNullable(marketFeeParams).map(MarketFeeParams::getPairs)
+            .orElseGet(() -> new NameValuePair[0]);
+
+        final var request = getRequestBuilder(getURI("account/fees", params))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), MarketFee.class)));
     }
 
     private HttpRequest.Builder getRequestBuilder(final URI uri) {

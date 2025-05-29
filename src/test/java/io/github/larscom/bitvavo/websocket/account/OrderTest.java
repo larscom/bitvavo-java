@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.larscom.bitvavo.account.OrderType;
 import io.github.larscom.bitvavo.json.ObjectMapperProvider;
 import io.github.larscom.bitvavo.websocket.message.MessageInEvent;
-import io.github.larscom.bitvavo.websocket.Side;
+import io.github.larscom.bitvavo.trade.Side;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

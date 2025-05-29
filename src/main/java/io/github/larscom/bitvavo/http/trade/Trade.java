@@ -3,7 +3,7 @@ package io.github.larscom.bitvavo.http.trade;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.github.larscom.bitvavo.http.Side;
+import io.github.larscom.bitvavo.trade.Side;
 import org.immutables.value.Value;
 
 import java.math.BigDecimal;

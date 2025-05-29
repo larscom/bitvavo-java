@@ -4,7 +4,7 @@
 [![workflow](https://github.com/larscom/bitvavo-java/actions/workflows/workflow.yml/badge.svg)](https://github.com/larscom/bitvavo-java/actions/workflows/workflow.yml)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Java library to interact with the Bitvavo platform using the Bitvavo v2 API (see: https://docs.bitvavo.com)
+Reactive `non-blocking` Java `21` library to interact with the Bitvavo platform using the Bitvavo v2 API (see: https://docs.bitvavo.com)
 
 > [!NOTE]
 > This library is in development and breaking changes may be made up until a 1.0 release.
@@ -18,8 +18,9 @@ Java library to interact with the Bitvavo platform using the Bitvavo v2 API (see
     - **Reactive**: The `ReactiveWebSocketClient` is `reactive` and `non-blocking`, it
       uses [RxJava](https://github.com/ReactiveX/RxJava) under the hood.
 
-- **HTTP Client** (Coming soon):  You can do things like placing orders or withdraw assets from your account.
+- **HTTP Client**:  You can do things like placing orders or withdraw assets from your account.
     - **Read / Write**: The HTTP client allows you to receive data and send data.
+    - **Non Blocking**: By default, http calls don't block unless you tell to do so.
 
 ## 📦 Installation
 
