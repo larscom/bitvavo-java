@@ -1,10 +1,9 @@
 package io.github.larscom.bitvavo.http.client;
 
-import io.github.larscom.bitvavo.http.account.MarketFee;
-import io.github.larscom.bitvavo.http.account.MarketFeeParams;
-import io.github.larscom.bitvavo.http.account.TransactionHistory;
-import io.github.larscom.bitvavo.http.account.TransactionHistoryParams;
+import io.github.larscom.bitvavo.http.account.*;
 import io.reactivex.rxjava3.core.Single;
+
+import java.util.List;
 
 public interface PrivateApi extends PublicApi {
     /// Returns all past transactions for your account.
@@ -28,4 +27,14 @@ public interface PrivateApi extends PublicApi {
     ///
     /// Rate limit weight points: 1
     Single<MarketFee> getMarketFee(MarketFeeParams marketFeeParams);
+
+    /// Returns the current balance for your account (all assets above zero)
+    ///
+    /// Rate limit weight points: 5
+    Single<List<Balance>> getBalance();
+
+    /// Returns the current balance for your account for the specified symbol.
+    ///
+    /// Rate limit weight points: 5
+    Single<List<Balance>> getBalance(String symbol);
 }

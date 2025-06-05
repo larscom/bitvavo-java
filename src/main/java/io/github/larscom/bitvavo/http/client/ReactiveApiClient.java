@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.larscom.bitvavo.account.Credentials;
 import io.github.larscom.bitvavo.candle.Interval;
 import io.github.larscom.bitvavo.crypto.CryptoUtils;
-import io.github.larscom.bitvavo.http.account.MarketFee;
-import io.github.larscom.bitvavo.http.account.MarketFeeParams;
-import io.github.larscom.bitvavo.http.account.TransactionHistory;
-import io.github.larscom.bitvavo.http.account.TransactionHistoryParams;
+import io.github.larscom.bitvavo.http.account.*;
 import io.github.larscom.bitvavo.http.asset.Asset;
 import io.github.larscom.bitvavo.http.book.Book;
 import io.github.larscom.bitvavo.http.candle.Candle;
@@ -118,14 +115,17 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         httpClient = builder.build();
     }
 
+    @Override
     public Observable<RateLimitQuota> getRateLimitQuota() {
         return Observable.wrap(rateLimitQuota);
     }
 
+    @Override
     public RateLimitQuota getCurrentRateLimitQuota() {
         return rateLimitQuota.getValue();
     }
 
+    @Override
     public Single<Long> getTime() {
         final var request = getRequestBuilder(getURI("time"))
             .GET()
@@ -136,6 +136,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
             .map(node -> node.get("time").asLong()));
     }
 
+    @Override
     public Single<List<Market>> getMarkets() {
         final var request = getRequestBuilder(getURI("markets"))
             .GET()
@@ -144,6 +145,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
+    @Override
     public Single<Market> getMarket(final String market) {
         final var request = getRequestBuilder(getURI("markets", createParameter("market", market)))
             .GET()
@@ -152,6 +154,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, Market.class)));
     }
 
+    @Override
     public Single<List<Asset>> getAssets() {
         final var request = getRequestBuilder(getURI("assets"))
             .GET()
@@ -160,6 +163,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
+    @Override
     public Single<Asset> getAsset(final String symbol) {
         final var request = getRequestBuilder(getURI("assets", createParameter("symbol", symbol)))
             .GET()
@@ -168,10 +172,12 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, Asset.class)));
     }
 
+    @Override
     public Single<Book> getOrderBook(final String market) {
         return getOrderBook(market, 1000);
     }
 
+    @Override
     public Single<Book> getOrderBook(final String market, final int depth) {
         final var request = getRequestBuilder(getURI(String.format("%s/book", market), createParameter("depth", String.valueOf(depth))))
             .GET()
@@ -180,10 +186,12 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, Book.class)));
     }
 
+    @Override
     public Single<List<Trade>> getTrades(final String market) {
         return getTrades(market, null);
     }
 
+    @Override
     public Single<List<Trade>> getTrades(final String market, final TradeParams tradeParams) {
         final var params = Optional.ofNullable(tradeParams).map(TradeParams::getPairs)
             .orElseGet(() -> new NameValuePair[0]);
@@ -195,6 +203,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
+    @Override
     public Single<List<TickerPrice>> getTickerPrices() {
         final var request = getRequestBuilder(getURI("ticker/price"))
             .GET()
@@ -203,6 +212,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
+    @Override
     public Single<TickerPrice> getTickerPrice(final String market) {
         final var request = getRequestBuilder(getURI("ticker/price", createParameter("market", market)))
             .GET()
@@ -211,6 +221,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, TickerPrice.class)));
     }
 
+    @Override
     public Single<List<TickerBook>> getTickerBooks() {
         final var request = getRequestBuilder(getURI("ticker/book"))
             .GET()
@@ -219,6 +230,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
+    @Override
     public Single<TickerBook> getTickerBook(final String market) {
         final var request = getRequestBuilder(getURI("ticker/book", createParameter("market", market)))
             .GET()
@@ -227,10 +239,12 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, TickerBook.class)));
     }
 
+    @Override
     public Single<List<Candle>> getCandles(final String market, final Interval interval) {
         return getCandles(market, interval, null);
     }
 
+    @Override
     public Single<List<Candle>> getCandles(final String market, final Interval interval, final CandleParams candleParams) {
         final var params = Optional.ofNullable(candleParams).map(CandleParams::getPairs)
             .orElseGet(() -> new NameValuePair[0]);
@@ -247,6 +261,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
+    @Override
     public Single<List<Candle24h>> getCandle24h() {
         final var request = getRequestBuilder(getURI("ticker/24h"))
             .GET()
@@ -255,6 +270,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, new TypeReference<>() {})));
     }
 
+    @Override
     public Single<Candle24h> getCandle24h(final String market) {
         final var request = getRequestBuilder(getURI("ticker/24h", createParameter("market", market)))
             .GET()
@@ -263,10 +279,12 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(request, Candle24h.class)));
     }
 
+    @Override
     public Single<TransactionHistory> getTransactionHistory() {
         return getTransactionHistory(null);
     }
 
+    @Override
     public Single<TransactionHistory> getTransactionHistory(final TransactionHistoryParams transactionHistoryParams) {
         final var params = Optional.ofNullable(transactionHistoryParams).map(TransactionHistoryParams::getPairs)
             .orElseGet(() -> new NameValuePair[0]);
@@ -282,6 +300,7 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return getMarketFee(null);
     }
 
+    @Override
     public Single<MarketFee> getMarketFee(final MarketFeeParams marketFeeParams) {
         final var params = Optional.ofNullable(marketFeeParams).map(MarketFeeParams::getPairs)
             .orElseGet(() -> new NameValuePair[0]);
@@ -291,6 +310,24 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
             .build();
 
         return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), MarketFee.class)));
+    }
+
+    @Override
+    public Single<List<Balance>> getBalance() {
+        final var request = getRequestBuilder(getURI("balance"))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), new TypeReference<>() {})));
+    }
+
+    @Override
+    public Single<List<Balance>> getBalance(final String symbol) {
+        final var request = getRequestBuilder(getURI("balance", createParameter("symbol", symbol)))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), new TypeReference<>() {})));
     }
 
     private HttpRequest.Builder getRequestBuilder(final URI uri) {
