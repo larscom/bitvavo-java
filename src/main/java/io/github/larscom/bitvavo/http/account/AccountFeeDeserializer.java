@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 class AccountFeeDeserializer extends JsonDeserializer<AccountFee> {
@@ -23,10 +24,10 @@ class AccountFeeDeserializer extends JsonDeserializer<AccountFee> {
             throw new JsonMappingException(p, "Expecting JSON node to contain 'fees'");
         }
 
-        final ArrayNode capabilities = (ArrayNode) node.get("capabilities");
-        if (capabilities == null) {
-            throw new JsonMappingException(p, "Expecting JSON node to contain 'capabilities'");
-        }
+        final ArrayNode capabilities = Optional.ofNullable(node.get("capabilities"))
+            .filter(ArrayNode.class::isInstance)
+            .map(ArrayNode.class::cast)
+            .orElseThrow(() -> new JsonMappingException(p, "Expecting 'capabilities' to be a JSON array"));
 
         return ImmutableAccountFee.builder()
             .tier(fees.get("tier").asText())
