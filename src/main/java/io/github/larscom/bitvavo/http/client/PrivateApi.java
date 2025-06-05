@@ -37,4 +37,9 @@ public interface PrivateApi extends PublicApi {
     ///
     /// Rate limit weight points: 5
     Single<List<Balance>> getBalance(String symbol);
+
+    /// Returns the current fees for your account.
+    ///
+    /// Rate limit weight points: 1
+    Single<AccountFee> getAccountFee();
 }

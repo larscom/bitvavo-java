@@ -8,8 +8,9 @@ class ExampleHttp {
     public static void main(final String[] args) throws InterruptedException {
         final var client = ReactiveApiClient.newPrivate(new Credentials(System.getenv("API_KEY"), System.getenv("API_SECRET")));
 
-        client.getBalance().subscribe((history, throwable) -> {
+        client.getAccountFee().subscribe((history, throwable) -> {
             System.out.println(history);
+            System.out.println(throwable);
         });
 
 //        client.getTime().subscribe((time, throwable) -> {

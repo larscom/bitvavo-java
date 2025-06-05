@@ -330,6 +330,15 @@ public class ReactiveApiClient implements PublicApi, PrivateApi {
         return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), new TypeReference<>() {})));
     }
 
+    @Override
+    public Single<AccountFee> getAccountFee() {
+        final var request = getRequestBuilder(getURI("account"))
+            .GET()
+            .build();
+
+        return withIOScheduler(Single.fromFuture(sendAsync(withAuthentication(request), AccountFee.class)));
+    }
+
     private HttpRequest.Builder getRequestBuilder(final URI uri) {
         return HttpRequest.newBuilder()
             .uri(uri)
