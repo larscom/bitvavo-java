@@ -1,7 +1,7 @@
 package io.github.larscom.bitvavo.websocket.subscription;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
+import io.github.larscom.bitvavo.json.ObjectMapperProvider;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

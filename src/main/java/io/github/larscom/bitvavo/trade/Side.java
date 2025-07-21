@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.websocket;
+package io.github.larscom.bitvavo.trade;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -3,8 +3,7 @@ package io.github.larscom.bitvavo.websocket.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.larscom.bitvavo.internal.Either;
-import io.github.larscom.bitvavo.websocket.Error;
+import io.github.larscom.bitvavo.error.BitvavoError;
 import io.github.larscom.bitvavo.websocket.Trade;
 import io.github.larscom.bitvavo.websocket.account.Authentication;
 import io.github.larscom.bitvavo.websocket.account.Fill;
@@ -31,8 +30,8 @@ import java.util.concurrent.CountDownLatch;
 class WebSocket extends WebSocketClient {
     private final ObjectMapper objectMapper;
     private final CountDownLatch closeLatch;
-    private final PublishSubject<Either<MessageIn, Error>> incoming;
-    private final Flowable<Either<MessageIn, Error>> outgoing;
+    private final PublishSubject<Either<MessageIn, BitvavoError>> incoming;
+    private final Flowable<Either<MessageIn, BitvavoError>> outgoing;
 
     private final HashMap<MessageInEvent, Class<? extends MessageIn>> eventMap = new HashMap<>() {{
         put(MessageInEvent.AUTHENTICATE, Authentication.class);
@@ -47,7 +46,7 @@ class WebSocket extends WebSocketClient {
         put(MessageInEvent.FILL, Fill.class);
     }};
 
-    public WebSocket(final ObjectMapper objectMapper)  {
+    public WebSocket(final ObjectMapper objectMapper) {
         super(createURI("wss://ws.bitvavo.com/v2"));
         this.objectMapper = objectMapper;
         this.closeLatch = new CountDownLatch(1);
@@ -55,7 +54,7 @@ class WebSocket extends WebSocketClient {
         this.outgoing = incoming.toFlowable(BackpressureStrategy.BUFFER);
     }
 
-    public Flowable<Either<MessageIn, Error>> stream() {
+    public Flowable<Either<MessageIn, BitvavoError>> stream() {
         return outgoing;
     }
 
@@ -90,11 +89,11 @@ class WebSocket extends WebSocketClient {
                 .map(JsonNode::asText)
                 .map(MessageInEvent::deserialize)
                 .flatMap(event -> maybeDeserialize(message, eventMap.get(event)))
-                .map(Either::<MessageIn, Error>left);
+                .map(Either::<MessageIn, BitvavoError>left);
 
             final var maybeError = Optional.ofNullable(json.get("error"))
-                .flatMap(__ -> maybeDeserialize(message, Error.class))
-                .map(Either::<MessageIn, Error>right);
+                .flatMap(__ -> maybeDeserialize(message, BitvavoError.class))
+                .map(Either::<MessageIn, BitvavoError>right);
 
             final var either = maybeMessage.or(() -> maybeError);
             either.ifPresent(incoming::onNext);
@@ -112,8 +111,8 @@ class WebSocket extends WebSocketClient {
     @Override
     public void onOpen(final ServerHandshake serverHandshake) {
         if (serverHandshake.getHttpStatus() != 101) {
-            final var error = Error.builder()
-                .errorCode(serverHandshake.getHttpStatus())
+            final var error = BitvavoError.builder()
+                .errorCode((int) serverHandshake.getHttpStatus())
                 .errorMessage(serverHandshake.getHttpStatusMessage())
                 .build();
 
@@ -125,7 +124,7 @@ class WebSocket extends WebSocketClient {
 
     @Override
     public void onError(final Exception e) {
-        final var error = Error.builder()
+        final var error = BitvavoError.builder()
             .errorCode(0)
             .errorMessage(e.getMessage())
             .build();
@@ -146,7 +145,7 @@ class WebSocket extends WebSocketClient {
             return Optional.of(objectMapper.readValue(json, clazz));
         } catch (final JsonProcessingException | RuntimeException e) {
             final var errorMessage = String.format("%s > incoming message: %s", e.getMessage(), json);
-            final var error = Error.builder()
+            final var error = BitvavoError.builder()
                 .errorCode(0)
                 .errorMessage(errorMessage)
                 .build();

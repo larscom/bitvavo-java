@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.larscom.bitvavo.candle.Interval;
 import io.github.larscom.bitvavo.websocket.message.MessageInEvent;
 
 import java.io.IOException;

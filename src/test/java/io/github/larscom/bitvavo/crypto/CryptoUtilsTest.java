@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.internal;
+package io.github.larscom.bitvavo.crypto;
 
 import org.junit.jupiter.api.Test;
 

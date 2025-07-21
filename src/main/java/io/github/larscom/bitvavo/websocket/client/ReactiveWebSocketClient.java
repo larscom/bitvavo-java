@@ -1,12 +1,11 @@
 package io.github.larscom.bitvavo.websocket.client;
 
-import io.github.larscom.bitvavo.internal.CryptoUtils;
-import io.github.larscom.bitvavo.internal.Either;
-import io.github.larscom.bitvavo.internal.ObjectMapperProvider;
-import io.github.larscom.bitvavo.websocket.Error;
+import io.github.larscom.bitvavo.account.Credentials;
+import io.github.larscom.bitvavo.crypto.CryptoUtils;
+import io.github.larscom.bitvavo.error.BitvavoError;
+import io.github.larscom.bitvavo.json.ObjectMapperProvider;
 import io.github.larscom.bitvavo.websocket.Trade;
 import io.github.larscom.bitvavo.websocket.account.Authentication;
-import io.github.larscom.bitvavo.websocket.account.Credentials;
 import io.github.larscom.bitvavo.websocket.account.Fill;
 import io.github.larscom.bitvavo.websocket.account.Order;
 import io.github.larscom.bitvavo.websocket.book.Book;
@@ -35,27 +34,27 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
-public class ReactiveWebSocketClient {
+public class ReactiveWebSocketClient implements PrivateApi, PublicApi {
     private volatile WebSocket webSocket;
     private volatile boolean running;
 
-    private final BehaviorSubject<Either<MessageIn, Error>> incoming;
-    private final Flowable<Either<MessageIn, Error>> outgoing;
+    private final BehaviorSubject<Either<MessageIn, BitvavoError>> incoming;
+    private final Flowable<Either<MessageIn, BitvavoError>> outgoing;
 
-    public ReactiveWebSocketClient() {
-        this(Optional.empty(), Optional.empty());
+    public static PublicApi newPublic() {
+        return new ReactiveWebSocketClient(Optional.empty(), Optional.empty());
     }
 
-    public ReactiveWebSocketClient(@NonNull final Proxy proxy) {
-        this(Optional.empty(), Optional.of(proxy));
+    public static PublicApi newPublic(@NonNull final Proxy proxy) {
+        return new ReactiveWebSocketClient(Optional.empty(), Optional.of(proxy));
     }
 
-    public ReactiveWebSocketClient(@NonNull final Credentials credentials) {
-        this(Optional.of(credentials), Optional.empty());
+    public static PrivateApi newPrivate(@NonNull final Credentials credentials) {
+        return new ReactiveWebSocketClient(Optional.of(credentials), Optional.empty());
     }
 
-    public ReactiveWebSocketClient(@NonNull final Credentials credentials, @NonNull final Proxy proxy) {
-        this(Optional.of(credentials), Optional.of(proxy));
+    public static PrivateApi newPrivate(@NonNull final Credentials credentials, @NonNull final Proxy proxy) {
+        return new ReactiveWebSocketClient(Optional.of(credentials), Optional.of(proxy));
     }
 
     private ReactiveWebSocketClient(final Optional<Credentials> credentials, final Optional<Proxy> proxy) {
@@ -101,7 +100,7 @@ public class ReactiveWebSocketClient {
         return mapTo(messages(), Fill.class);
     }
 
-    public Flowable<Error> errors() {
+    public Flowable<BitvavoError> errors() {
         return outgoing.filter(Either::isRight).map(Either::getRight);
     }
 

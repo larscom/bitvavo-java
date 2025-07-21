@@ -1,4 +1,4 @@
-package io.github.larscom.bitvavo.internal;
+package io.github.larscom.bitvavo.websocket.client;
 
 public final class Either<L, R> {
     private final L left;

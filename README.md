@@ -4,7 +4,8 @@
 [![workflow](https://github.com/larscom/bitvavo-java/actions/workflows/workflow.yml/badge.svg)](https://github.com/larscom/bitvavo-java/actions/workflows/workflow.yml)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Java library to interact with the Bitvavo platform using the Bitvavo v2 API (see: https://docs.bitvavo.com)
+Reactive `non-blocking` Java `21` library to interact with the Bitvavo platform using the Bitvavo v2 API (
+see: https://docs.bitvavo.com)
 
 > [!NOTE]
 > This library is in development and breaking changes may be made up until a 1.0 release.
@@ -18,8 +19,9 @@ Java library to interact with the Bitvavo platform using the Bitvavo v2 API (see
     - **Reactive**: The `ReactiveWebSocketClient` is `reactive` and `non-blocking`, it
       uses [RxJava](https://github.com/ReactiveX/RxJava) under the hood.
 
-- **HTTP Client** (Coming soon):  You can do things like placing orders or withdraw assets from your account.
-    - **Read / Write**: The HTTP client allows you to receive data and send data.
+- **Reactive Http Client**:  You can do things like placing orders or withdraw assets from your account.
+    - **Read / Write**: The http client allows you to receive data and send data.
+    - **Non Blocking**: By default, http calls don't block unless you tell to do so.
 
 ## 📦 Installation
 
@@ -38,41 +40,69 @@ Add `bitvavo-java` to your `pom.xml`:
 
 ## 🔧 Usage
 
-Here's a quick example to get you started:
+### WebSocket Client
+
+Here's a quick example to get you started with the websocket client:
 
 ```java
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
+import io.github.larscom.bitvavo.websocket.client.PublicApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Set;
 
 class Main {
 
-  public static void main(final String[] args) throws InterruptedException {
-    final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
+    public static void main(final String[] args) throws InterruptedException {
+        // creates a public client, only contains public endpoints
+        final PublicApi client = ReactiveWebSocketClient.newPublic();
 
-    final Channel channel = Channel.builder()
+        final Channel channel = Channel.builder()
             .name(ChannelName.TICKER)
             .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
             .build();
 
-    // you can call this function mutliple times to subscribe to more markets at a later moment.
-    client.subscribe(Set.of(channel));
+        // you can call this function mutliple times to subscribe to more markets at a later moment.
+        client.subscribe(Set.of(channel));
 
-    // receive errors, mostly for debug purposes
-    client.errors().subscribe(System.out::println);
+        // receive errors, mostly for debug purposes
+        client.errors().subscribe(System.out::println);
 
-    // receive data
-    client.tickers().subscribe(System.out::println);
+        // receive data
+        client.tickers().subscribe(System.out::println);
 
-    // keep this thread alive
-    Thread.currentThread().join();
-  }
+        // keep this thread alive
+        Thread.currentThread().join();
+    }
 }
 ```
 
-## 📚 Examples
+### Http Client
+
+Here's a quick example to get you started with the http client:
+
+```java
+import io.github.larscom.bitvavo.http.client.PublicApi;
+import io.github.larscom.bitvavo.http.client.ReactiveHttpClient;
+
+
+class Main {
+    public static void main(final String[] args) throws InterruptedException {
+        final PublicApi client = ReactiveHttpClient.newPublic();
+
+        // non-blocking, see examples if you need a blocking call.
+        client.getMarkets().subscribe((markets, throwable) -> {
+            System.out.println(markets);
+        });
+
+        // keep this thread alive        
+        Thread.currentThread().join();
+    }
+}
+```
+
+## 📚 Examples WebSocket
 
 ### Authentication
 
@@ -82,44 +112,48 @@ in [Bitvavo](https://account.bitvavo.com/user/api)
 ```java
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
-import io.github.larscom.bitvavo.websocket.account.Credentials;
+import io.github.larscom.bitvavo.account.Credentials;
+import io.github.larscom.bitvavo.websocket.client.PrivateApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.util.Set;
 
 class Main {
 
-  public static void main(final String[] args) throws InterruptedException {
-    final Credentials credentials = new Credentials("MY_API_KEY", "MY_API_SECRET");
+    public static void main(final String[] args) throws InterruptedException {
+        // create credentials
+        final Credentials credentials = new Credentials("MY_API_KEY", "MY_API_SECRET");
 
-    // pass the credentials
-    final ReactiveWebSocketClient client = new ReactiveWebSocketClient(credentials);
+        // create a private client (it contains all public endpoints as well)
+        final PrivateApi client = ReactiveWebSocketClient.newPrivate(credentials);
 
-    final Channel channel = Channel.builder()
+        final Channel channel = Channel.builder()
             .name(ChannelName.ACCOUNT)
             .markets(Set.of("ETH-EUR", "BTC-EUR"))
             .build();
 
-    client.subscribe(Set.of(channel));
+        client.subscribe(Set.of(channel));
 
-    // receive errors, mostly for debug purposes
-    client.errors().subscribe(System.out::println);
+        // receive errors, mostly for debug purposes
+        client.errors().subscribe(System.out::println);
 
-    // receive data
-    client.orders().subscribe(System.out::println);
+        // receive private data
+        client.orders().subscribe(System.out::println);
+        client.fills().subscribe(System.out::println);
 
-    Thread.currentThread().join();
-  }
+        Thread.currentThread().join();
+    }
 }
 ```
 
 ### Proxy
 
-If you need a proxy you can simply pass a `java.net.Proxy` object to the `ReactiveWebSocketClient` constructor.
+If you need a proxy you can simply pass a `java.net.Proxy` object.
 
 ```java
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
+import io.github.larscom.bitvavo.websocket.client.PublicApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 
 import java.net.InetSocketAddress;
@@ -128,28 +162,28 @@ import java.util.Set;
 
 class Main {
 
-  public static void main(final String[] args) throws InterruptedException {
-    final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.example.com", 8080));
+    public static void main(final String[] args) throws InterruptedException {
+        final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.example.com", 8080));
 
-    // pass the proxy
-    final ReactiveWebSocketClient client = new ReactiveWebSocketClient(proxy);
+        // pass the proxy
+        final PublicApi client = ReactiveWebSocketClient.newPublic(proxy);
 
-    final Channel channel = Channel.builder()
+        final Channel channel = Channel.builder()
             .name(ChannelName.TICKER)
             .markets(Set.of("ETH-EUR", "BTC-EUR", "POLYX-EUR", "APT-EUR", "VANRY-EUR"))
             .build();
 
-    client.subscribe(Set.of(channel));
+        client.subscribe(Set.of(channel));
 
-    // receive errors, mostly for debug purposes
-    client.errors().subscribe(System.out::println);
+        // receive errors, mostly for debug purposes
+        client.errors().subscribe(System.out::println);
 
-    // receive data
-    client.tickers().subscribe(System.out::println);
+        // receive data
+        client.tickers().subscribe(System.out::println);
 
-    // keep this thread alive
-    Thread.currentThread().join();
-  }
+        // keep this thread alive
+        Thread.currentThread().join();
+    }
 }
 ```
 
@@ -161,6 +195,7 @@ If you want to handle multiple events in a single stream you can use `instanceof
 import io.github.larscom.bitvavo.websocket.channel.ChannelName;
 import io.github.larscom.bitvavo.websocket.channel.Channel;
 import io.github.larscom.bitvavo.websocket.book.Book;
+import io.github.larscom.bitvavo.websocket.client.PublicApi;
 import io.github.larscom.bitvavo.websocket.client.ReactiveWebSocketClient;
 import io.github.larscom.bitvavo.websocket.ticker.Ticker;
 
@@ -168,30 +203,102 @@ import java.util.Set;
 
 class Main {
 
-  public static void main(final String[] args) throws InterruptedException {
-    final ReactiveWebSocketClient client = new ReactiveWebSocketClient();
+    public static void main(final String[] args) throws InterruptedException {
+        final PublicApi client = ReactiveWebSocketClient.newPublic();
 
-    final Set<Channel> channels = Set.of(
+        final Set<Channel> channels = Set.of(
             Channel.builder().name(ChannelName.TICKER).markets(Set.of("ETH-EUR")).build(),
             Channel.builder().name(ChannelName.BOOK).markets(Set.of("ETH-EUR")).build()
-    );
+        );
 
-    client.subscribe(channels);
+        client.subscribe(channels);
 
-    // single stream to handle all message types.
-    client.messages().subscribe(messageIn -> {
-      if (messageIn instanceof final Ticker ticker) {
-        System.out.println("Ticker: " + ticker);
-      }
+        // single stream to handle all message types.
+        client.messages().subscribe(messageIn -> {
+            if (messageIn instanceof final Ticker ticker) {
+                System.out.println("Ticker: " + ticker);
+            }
 
-      if (messageIn instanceof final Book book) {
-        System.out.println("Book: " + book);
-      }
-    });
+            if (messageIn instanceof final Book book) {
+                System.out.println("Book: " + book);
+            }
+        });
 
-    // keep this thread alive
-    Thread.currentThread().join();
-  }
+        // keep this thread alive
+        Thread.currentThread().join();
+    }
+}
+```
+
+## 📚 Examples Http
+
+### Authentication
+
+```java
+import io.github.larscom.bitvavo.account.Credentials;
+import io.github.larscom.bitvavo.http.client.PrivateApi;
+import io.github.larscom.bitvavo.http.client.ReactiveHttpClient;
+
+
+class Main {
+
+    public static void main(final String[] args) throws InterruptedException {
+        // create credentials
+        final Credentials credentials = new Credentials("MY_API_KEY", "MY_API_SECRET");
+
+        final PrivateApi client = ReactiveHttpClient.newPrivate(credentials);
+
+        client.getBalance().subscribe((balance, throwable) -> {
+            System.out.println(balance);
+        });
+
+        Thread.currentThread().join();
+    }
+}
+```
+
+### Proxy
+
+```java
+import io.github.larscom.bitvavo.http.client.PublicApi;
+import io.github.larscom.bitvavo.http.client.ReactiveHttpClient;
+
+import java.net.InetSocketAddress;
+
+
+class Main {
+    
+    public static void main(final String[] args) throws InterruptedException {
+        final PublicApi client = ReactiveHttpClient.newPublic(new InetSocketAddress("proxy.example.com", 8080));
+
+        client.getMarkets().subscribe((markets, throwable) -> {
+            System.out.println(markets);
+        });
+
+        Thread.currentThread().join();
+    }
+}
+```
+
+### Blocking call
+
+```java
+import io.github.larscom.bitvavo.http.client.PublicApi;
+import io.github.larscom.bitvavo.http.client.ReactiveHttpClient;
+import io.github.larscom.bitvavo.http.market.Market;
+
+import java.util.List;
+
+
+class Main {
+    
+    public static void main(final String[] args) {
+        final PublicApi client = ReactiveHttpClient.newPublic();
+
+        final List<Market> markets = client.getMarkets().blockingGet();
+        System.out.println(markets);
+
+    }
 }
 ```
 
@@ -203,7 +310,7 @@ There is an `Example.java` file in this repository which you can run using the f
 mvn exec:java
 ```
 
-The example subscribes to all available channels (tickers, tickers24h, candles,
+The example subscribes to all available (public) channels (tickers, tickers24h, candles,
 books, trades, orders, fills)
 
 ## License

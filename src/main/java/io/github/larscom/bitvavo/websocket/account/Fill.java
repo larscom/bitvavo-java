@@ -3,7 +3,7 @@ package io.github.larscom.bitvavo.websocket.account;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.github.larscom.bitvavo.websocket.Side;
+import io.github.larscom.bitvavo.trade.Side;
 import io.github.larscom.bitvavo.websocket.message.MessageIn;
 import org.immutables.value.Value;
 
@@ -27,7 +27,7 @@ public interface Fill extends MessageIn {
     UUID getFillId();
 
     /// The current timestamp in milliseconds since 1 Jan 1970.
-    long getTimestamp();
+    Long getTimestamp();
 
     /// The amount in base currency for which the trade has been made.
     BigDecimal getAmount();

@@ -19,7 +19,7 @@ public interface Book extends MessageIn {
 
     /// Integer which is increased by one for every update to the book. Useful for synchronizing.
     /// Resets to zero after restarting the matching engine.
-    int getNonce();
+    Integer getNonce();
 
     /// The bids in this book.
     List<BookPage> getBids();
