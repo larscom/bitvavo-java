@@ -7,7 +7,7 @@
     <groupId>io.github.larscom</groupId>
     <artifactId>bitvavo-java</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.9</version>
+    <version>0.1.0</version>
 
     <name>Bitvavo Java Library</name>
     <description>Bitvavo Java library to interact with the Bitvavo platform</description>

@@ -34,7 +34,7 @@ Add `bitvavo-java` to your `pom.xml`:
 <dependency>
     <groupId>io.github.larscom</groupId>
     <artifactId>bitvavo-java</artifactId>
-    <version>0.0.9</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
