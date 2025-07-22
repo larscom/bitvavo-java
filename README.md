@@ -311,7 +311,7 @@ mvn exec:java
 ```
 
 The example subscribes to all available (public) channels (tickers, tickers24h, candles,
-books, trades, orders, fills)
+books, trades)
 
 ## License
 
