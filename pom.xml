@@ -55,7 +55,7 @@
         <junit.jupiter.version>5.12.2</junit.jupiter.version>
         <assertj.version>3.27.4</assertj.version>
 
-        <sonatype.plugin.version>0.7.0</sonatype.plugin.version>
+        <sonatype.plugin.version>0.8.0</sonatype.plugin.version>
         <maven-source.plugin.version>3.3.1</maven-source.plugin.version>
         <maven-javadoc.plugin.version>3.11.3</maven-javadoc.plugin.version>
         <maven-gpg.plugin.version>3.2.8</maven-gpg.plugin.version>
