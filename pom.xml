@@ -52,7 +52,7 @@
         <immutables.version>2.11.3</immutables.version>
         <httpcomponents-client5.version>5.5</httpcomponents-client5.version>
 
-        <junit.jupiter.version>5.12.2</junit.jupiter.version>
+        <junit.jupiter.version>5.13.4</junit.jupiter.version>
         <assertj.version>3.27.4</assertj.version>
 
         <sonatype.plugin.version>0.8.0</sonatype.plugin.version>
