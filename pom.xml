@@ -47,7 +47,7 @@
 
         <java.websocket.version>1.6.0</java.websocket.version>
         <jackson.databind.version>2.20.1</jackson.databind.version>
-        <jackson.jdk8.version>2.20.0</jackson.jdk8.version>
+        <jackson.jdk8.version>2.20.1</jackson.jdk8.version>
         <rxjava.version>3.1.12</rxjava.version>
         <immutables.version>2.11.3</immutables.version>
         <httpcomponents-client5.version>5.5.1</httpcomponents-client5.version>
