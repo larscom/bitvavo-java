@@ -49,7 +49,7 @@
         <jackson.databind.version>2.20.1</jackson.databind.version>
         <jackson.jdk8.version>2.20.1</jackson.jdk8.version>
         <rxjava.version>3.1.12</rxjava.version>
-        <immutables.version>2.11.7</immutables.version>
+        <immutables.version>2.12.0</immutables.version>
         <httpcomponents-client5.version>5.5.1</httpcomponents-client5.version>
 
         <junit.jupiter.version>5.14.1</junit.jupiter.version>
