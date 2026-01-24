@@ -53,7 +53,7 @@
         <httpcomponents-client5.version>5.6</httpcomponents-client5.version>
 
         <junit.jupiter.version>6.0.2</junit.jupiter.version>
-        <assertj.version>3.27.6</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
 
         <sonatype.plugin.version>0.10.0</sonatype.plugin.version>
         <maven-source.plugin.version>3.4.0</maven-source.plugin.version>
